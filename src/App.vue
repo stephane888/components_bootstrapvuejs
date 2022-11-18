@@ -1,12 +1,17 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" />
+    <!-- <img alt="Vue logo" src="./assets/logo.png" /> -->
+    <div class="my-5">
+      <form-drag-drop></form-drag-drop>
+    </div>
   </div>
 </template>
 
 <script>
+import FormDragDrop from "./components/forms/FormDragDrop.vue";
 export default {
   name: "App",
+  components: { FormDragDrop },
 };
 </script>
 
