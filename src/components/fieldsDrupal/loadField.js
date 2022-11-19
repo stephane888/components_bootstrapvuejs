@@ -8,11 +8,12 @@ import htmlRender from "./html-render.vue";
 import drupalFile from "./drupal-file.vue";
 
 export default {
+  debug: false,
   getField(field) {
     var key = field.type;
     if (key == "list_string" && field.cardinality == 1) key = "boolean";
     var template;
-    console.log(" key : ", key);
+    if (this.debug) console.log(" key : ", key);
     switch (key) {
       case "string":
         template = drupalString;

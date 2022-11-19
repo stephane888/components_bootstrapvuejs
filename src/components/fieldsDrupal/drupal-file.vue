@@ -9,8 +9,8 @@
           :multiple="cardinality"
           accept=".jpg, .png, .gif, webp"
           size="sm"
-          @input="previewImage"
           :state="getValidationState(v)"
+          @input="previewImage"
         ></b-form-file>
       </b-form-group>
     </ValidationProvider>
