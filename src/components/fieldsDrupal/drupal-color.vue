@@ -1,5 +1,5 @@
 <template>
-  <div :class="class_css">
+  <div :class="classCss">
     <b-form-group :label="field.label" :description="field.description">
       <div
         v-for="(val, k) in model[field.name]"
@@ -18,9 +18,14 @@
 
 <script>
 export default {
-  name: "drupal-string",
+  name: "DrupalString",
   props: {
-    class_css: { type: [Array] },
+    classCss: {
+      type: [Array],
+      default: function () {
+        return [];
+      },
+    },
     field: { type: Object, required: true },
     model: { type: [Object, Array], required: true },
   },

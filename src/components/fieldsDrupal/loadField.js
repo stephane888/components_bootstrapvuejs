@@ -6,6 +6,7 @@ import drupalListString from "./drupal-list-string.vue";
 import drupalTextLong from "./textarea-ckeditor.vue";
 import htmlRender from "./html-render.vue";
 import drupalFile from "./drupal-file.vue";
+import ExperienceTypeVue from "./ExperienceType.vue";
 
 export default {
   debug: false,
@@ -38,6 +39,9 @@ export default {
         break;
       case "image":
         template = drupalFile;
+        break;
+      case "experience_type":
+        template = ExperienceTypeVue;
         break;
       default:
         break;
