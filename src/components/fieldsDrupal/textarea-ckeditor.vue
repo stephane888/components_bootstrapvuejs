@@ -1,9 +1,9 @@
 <template>
   <div :class="class_css" class="mb-4">
     <ValidationProvider
+      v-slot="v"
       :name="field.label"
       :rules="{ required: true }"
-      v-slot="v"
       class="form-group"
     >
       <legend v-html="field.label"></legend>
@@ -13,7 +13,7 @@
         @input="input"
         @namespaceloaded="onNamespaceLoaded"
       ></ckeditor>
-      <div class="text-danger my-2" v-if="v.errors">
+      <div v-if="v.errors" class="text-danger my-2">
         <small v-for="(error, ii) in v.errors" :key="ii" class="d-block">
           {{ error }}
         </small>
@@ -27,16 +27,17 @@ import { ValidationProvider } from "vee-validate";
 import "./vee-validation-rules";
 import config from "./loadField";
 export default {
-  name: "drupal-string",
+  name: "TextareaCkeditor",
+  components: {
+    ValidationProvider,
+  },
   props: {
     class_css: { type: [Array] },
     field: { type: Object, required: true },
     model: { type: [Object, Array], required: true },
-    namespace_store: { type: String, required: true },
+    namespaceStore: { type: String, required: true },
   },
-  components: {
-    ValidationProvider,
-  },
+
   data() {
     return {
       editorData: "",
@@ -136,12 +137,8 @@ export default {
       },
     };
   },
-  mounted() {
-    this.editorData = this.getValue();
-  },
   computed: {
     editorConfig() {
-      //,ckawesome, ckeditorfa
       var extraPlugins =
         "codesnippet,print,format,font,colorbutton,justify,image,filebrowser,stylesheetparser";
       return {
@@ -150,6 +147,10 @@ export default {
       };
     },
   },
+  mounted() {
+    this.editorData = this.getValue();
+  },
+
   methods: {
     getValidationState({ dirty, validated, valid = null }) {
       return (dirty || validated) && !valid ? valid : null;
@@ -158,8 +159,8 @@ export default {
       return config.getRules(this.field);
     },
     setValue(vals) {
-      if (this.namespace_store) {
-        this.$store.dispatch(this.namespace_store, {
+      if (this.namespaceStore) {
+        this.$store.dispatch(this.namespaceStore + "/setValue", {
           value: vals,
           fieldName: this.field.name,
         });

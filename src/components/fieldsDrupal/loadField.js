@@ -1,3 +1,4 @@
+import Vue from "vue";
 import drupalString from "./drupal-string.vue";
 import drupalLink from "./drupal-link.vue";
 import drupalColor from "./drupal-color.vue";
@@ -7,9 +8,15 @@ import drupalTextLong from "./textarea-ckeditor.vue";
 import htmlRender from "./html-render.vue";
 import drupalFile from "./drupal-file.vue";
 import ExperienceTypeVue from "./ExperienceType.vue";
+import CKEditor from "ckeditor4-vue";
+Vue.use(CKEditor);
 
 export default {
   debug: false,
+  /**
+   * Contient les methodes de wbu-utilities provenant du parent.
+   */
+  config: {},
   getField(field) {
     var key = field.type;
     if (key == "list_string" && field.cardinality == 1) key = "boolean";
@@ -61,5 +68,8 @@ export default {
       }
     }
     return rules;
+  },
+  getConfig(config) {
+    this.config = config;
   },
 };

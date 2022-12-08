@@ -1,5 +1,5 @@
 <template>
-  <div class="vuejs-uploader" :class="class_css">
+  <div class="vuejs-uploader" :class="classCss">
     <ValidationProvider :name="field.name" :rules="getRules()" v-slot="v">
       <b-form-group :label="field.label" :description="field.description">
         <b-form-file
@@ -31,20 +31,27 @@
 
 <script>
 import "../../assets/scss/upload.scss";
-import config from "./loadField";
+import request from "./loadField";
 import { ValidationProvider } from "vee-validate";
 import "./vee-validation-rules";
+
 export default {
   name: "UploaderFile",
-  props: {
-    class_css: { type: [Array] },
-    field: { type: Object, required: true },
-    model: { type: [Object, Array], required: true },
-    namespace_store: { type: String, required: true },
-  },
   components: {
     ValidationProvider,
   },
+  props: {
+    classCss: {
+      type: [Array],
+      default: function () {
+        return [];
+      },
+    },
+    field: { type: Object, required: true },
+    model: { type: [Object, Array], required: true },
+    namespaceStore: { type: String, required: true },
+  },
+
   data() {
     return {
       // Fichiers provenant de l'action utilisateur.
@@ -65,6 +72,7 @@ export default {
     },
   },
   mounted() {
+    console.log("request in file : ", request);
     this.getValue();
   },
   methods: {
@@ -79,7 +87,7 @@ export default {
      *
      */
     getRules() {
-      return config.getRules(this.field);
+      return request.getRules(this.field);
     },
     /**
      *
@@ -92,7 +100,7 @@ export default {
         for (const i in files) {
           const file = files[i];
           // Send images.
-          config.postFile("/filesmanager/post", file).then((resp) => {
+          request.config.postFile("/filesmanager/post", file).then((resp) => {
             reader.onload = (read) => {
               this.toUplode.push({
                 file: file,
@@ -107,8 +115,8 @@ export default {
       } else {
         const vals = [];
         this.toUplode = [];
-        config.postFile("/filesmanager/post", files).then((resp) => {
-          this.$store.commit("renderByStep/ACTIVE_RUNNING");
+        request.config.postFile("/filesmanager/post", files).then((resp) => {
+          this.$store.commit(this.namespaceStore + "/ACTIVE_RUNNING");
           reader.onload = (read) => {
             this.toUplode.push({
               file: files,
@@ -117,7 +125,7 @@ export default {
               url: read.target.result,
             });
             setTimeout(() => {
-              this.$store.commit("renderByStep/DISABLE_RUNNING");
+              this.$store.commit(this.namespaceStore + "/DISABLE_RUNNING");
             }, 300);
           };
           reader.readAsDataURL(files);
@@ -127,8 +135,8 @@ export default {
       }
     },
     setValue(vals) {
-      if (this.namespace_store) {
-        this.$store.dispatch(this.namespace_store, {
+      if (this.namespaceStore) {
+        this.$store.dispatch(this.namespaceStore + "/setValue", {
           value: vals,
           fieldName: this.field.name,
         });
@@ -142,9 +150,10 @@ export default {
       if (this.model[this.field.name] && this.model[this.field.name].length) {
         this.toUplode = [];
         this.model[this.field.name].forEach((item) => {
-          config.getImageUrl(item.target_id).then((resp) => {
-            this.toUplode.push({ url: resp.data });
-          });
+          if (request.config)
+            request.config.getImageUrl(item.target_id).then((resp) => {
+              this.toUplode.push({ url: resp.data });
+            });
         });
       }
     },

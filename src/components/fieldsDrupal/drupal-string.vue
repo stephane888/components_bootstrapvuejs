@@ -1,5 +1,5 @@
 <template>
-  <div :class="class_css">
+  <div :class="classCss">
     <ValidationProvider :name="field.name" :rules="getRules()" v-slot="v">
       <b-form-group :label="field.label" :description="field.description">
         <div class="field-item-value">
@@ -27,16 +27,22 @@ import { ValidationProvider } from "vee-validate";
 import "./vee-validation-rules";
 import config from "./loadField";
 export default {
-  name: "drupal-string",
-  props: {
-    class_css: { type: [Array] },
-    field: { type: Object, required: true },
-    model: { type: [Object, Array], required: true },
-    namespace_store: { type: String, required: true },
-  },
+  name: "DrupalString",
   components: {
     ValidationProvider,
   },
+  props: {
+    classCss: {
+      type: [Array],
+      default: function () {
+        return [];
+      },
+    },
+    field: { type: Object, required: true },
+    model: { type: [Object, Array], required: true },
+    namespaceStore: { type: String, required: true },
+  },
+
   data() {
     return {
       input_value: null,
@@ -53,13 +59,13 @@ export default {
       return config.getRules(this.field);
     },
     setValue(vals) {
-      if (this.namespace_store) {
-        this.$store.dispatch(this.namespace_store, {
+      if (this.namespaceStore) {
+        this.$store.dispatch(this.namespaceStore + "/setValue", {
           value: vals,
           fieldName: this.field.name,
         });
       } else
-        this.$store.dispatch({
+        this.$store.dispatch("setValue", {
           value: vals,
           fieldName: this.field.name,
         });

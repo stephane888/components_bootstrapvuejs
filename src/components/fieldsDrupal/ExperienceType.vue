@@ -73,6 +73,7 @@
     <EditExperienceType
       v-if="showFormEdit"
       :f-value="currentEditValue"
+      :field="field"
       @closeEditForm="closeEditForm"
     ></EditExperienceType>
   </div>
@@ -118,7 +119,6 @@ export default {
     };
   },
   mounted() {
-    console.log("Math.random() : ", Math.random());
     var el = document.getElementById(this.idHtml);
     Sortable.create(el, {
       animation: 150,

@@ -69,7 +69,7 @@ export default {
     class_css: { type: [Array] },
     field: { type: Object, required: true },
     model: { type: [Object, Array], required: true },
-    namespace_store: { type: String, required: true },
+    namespaceStore: { type: String, required: true },
   },
 
   data() {
@@ -123,8 +123,8 @@ export default {
         });
     },
     setValue(vals) {
-      if (this.namespace_store) {
-        this.$store.dispatch(this.namespace_store, {
+      if (this.namespaceStore) {
+        this.$store.dispatch(this.namespaceStore + "/setValue", {
           value: vals,
           fieldName: this.field.name,
         });
