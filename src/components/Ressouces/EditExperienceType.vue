@@ -50,7 +50,7 @@
               <label for="input-location">{{ settings.label_address }}</label>
               <b-form-input
                 id="input-location"
-                v-model="form.location"
+                v-model="form.address"
                 type="text"
                 placeholder="Tokyo, Lagos"
                 required
@@ -67,10 +67,16 @@
               </label>
               <b-form-datepicker
                 id="input-date-debut"
-                v-model="form.date_debut"
+                v-model="date_debut"
                 type="text"
                 placeholder="Date de début"
                 required
+                locale="fr"
+                :date-format-options="{
+                  year: 'numeric',
+                  month: 'short',
+                  day: '2-digit',
+                }"
               ></b-form-datepicker>
               <b-form-text> p.ex. 22 Juin</b-form-text>
             </div>
@@ -82,12 +88,18 @@
               </label>
               <b-form-datepicker
                 id="input-date-fin"
-                v-model="form.date_fin"
+                v-model="date_fin"
                 type="text"
                 placeholder="Date de fin"
                 required
+                locale="fr"
+                :date-format-options="{
+                  year: 'numeric',
+                  month: 'short',
+                  day: '2-digit',
+                }"
               ></b-form-datepicker>
-              <b-form-text> p.ex. 22 Dec</b-form-text>
+              <b-form-text> p.ex. 22 Dec </b-form-text>
               <b-form-checkbox
                 v-model="form.en_poste"
                 class="mt-3 ml-2"
@@ -119,7 +131,6 @@
         </b-row>
       </b-form>
     </div>
-    <pre> {{ form }} </pre>
   </div>
 </template>
 
@@ -265,6 +276,37 @@ export default {
         extraPlugins: extraPlugins,
         ...this.preEditorConfig,
       };
+    },
+    date_debut: {
+      get() {
+        if (this.form.date_debut) {
+          const date = new Date(this.form.date_debut * 1000);
+          let month = parseInt(date.getMonth()) + 1;
+          return date.getFullYear() + "-" + month + "-" + date.getDate();
+        } else return "";
+      },
+      set(val) {
+        if (val) {
+          const date = new Date(val);
+          this.form.date_debut = Math.floor(date.getTime() / 1000);
+        }
+      },
+    },
+    date_fin: {
+      get() {
+        if (this.form.date_fin) {
+          const date = new Date(this.form.date_fin * 1000);
+          let month = parseInt(date.getMonth()) + 1;
+          return date.getFullYear() + "-" + month + "-" + date.getDate();
+        } else return "";
+      },
+      set(val) {
+        console.log(" date_fin : ", val);
+        if (val) {
+          const date = new Date(val);
+          this.form.date_fin = Math.floor(date.getTime() / 1000);
+        }
+      },
     },
   },
   mounted() {

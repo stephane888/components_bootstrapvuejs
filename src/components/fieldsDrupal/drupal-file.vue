@@ -72,7 +72,6 @@ export default {
     },
   },
   mounted() {
-    console.log("request in file : ", request);
     this.getValue();
   },
   methods: {
@@ -116,7 +115,9 @@ export default {
         const vals = [];
         this.toUplode = [];
         request.config.postFile("/filesmanager/post", files).then((resp) => {
-          this.$store.commit(this.namespaceStore + "/ACTIVE_RUNNING");
+          if (this.namespaceStore)
+            this.$store.commit(this.namespaceStore + "/ACTIVE_RUNNING");
+          else this.$store.commit("ACTIVE_RUNNING");
           reader.onload = (read) => {
             this.toUplode.push({
               file: files,
@@ -125,7 +126,9 @@ export default {
               url: read.target.result,
             });
             setTimeout(() => {
-              this.$store.commit(this.namespaceStore + "/DISABLE_RUNNING");
+              if (this.namespaceStore)
+                this.$store.commit(this.namespaceStore + "/DISABLE_RUNNING");
+              else this.$store.commit("DISABLE_RUNNING");
             }, 300);
           };
           reader.readAsDataURL(files);
@@ -141,7 +144,7 @@ export default {
           fieldName: this.field.name,
         });
       } else
-        this.$store.dispatch({
+        this.$store.dispatch("setValue", {
           value: vals,
           fieldName: this.field.name,
         });
@@ -151,7 +154,7 @@ export default {
         this.toUplode = [];
         this.model[this.field.name].forEach((item) => {
           if (request.config)
-            request.config.getImageUrl(item.target_id).then((resp) => {
+            request.getImageUrl(item.target_id).then((resp) => {
               this.toUplode.push({ url: resp.data });
             });
         });

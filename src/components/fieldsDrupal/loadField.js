@@ -51,12 +51,13 @@ export default {
         template = ExperienceTypeVue;
         break;
       default:
+        console.log("Champs sans rendu :", key);
         break;
     }
     return template;
   },
   getImageUrl(fid, style = "medium") {
-    return this.get("/vuejs-entity/image/" + fid + "/" + style);
+    return this.config.get("/vuejs-entity/image/" + fid + "/" + style);
   },
   getRules(field) {
     const rules = {};

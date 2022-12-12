@@ -1,5 +1,5 @@
 <template>
-  <div :class="class_css" class="mb-4">
+  <div :class="classCss" class="mb-4">
     <ValidationProvider
       v-slot="v"
       :name="field.label"
@@ -32,7 +32,12 @@ export default {
     ValidationProvider,
   },
   props: {
-    class_css: { type: [Array] },
+    classCss: {
+      type: [Array],
+      default: function () {
+        return [];
+      },
+    },
     field: { type: Object, required: true },
     model: { type: [Object, Array], required: true },
     namespaceStore: { type: String, required: true },
@@ -64,7 +69,7 @@ export default {
         ],
         contentsCss:
           "@import '" +
-          config.getBaseUrl() +
+          config.config.getBaseUrl() +
           "/themes/contrib/wb_universe/node_modules/%40fortawesome/fontawesome-free/css/all.min.css'; @import 'http://wb-horizon.com/themes/custom/wb_horizon_com/css/vendor-style.css';",
         on: {
           instanceReady: function (ev) {
@@ -165,7 +170,7 @@ export default {
           fieldName: this.field.name,
         });
       } else
-        this.$store.dispatch({
+        this.$store.dispatch("setValue", {
           value: vals,
           fieldName: this.field.name,
         });

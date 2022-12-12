@@ -48,9 +48,22 @@ export default {
       input_value: null,
     };
   },
+  watch: {
+    /**
+     * Lorsque le champs est constrit via les boucle dynamique,
+     * le template n'est pas reconstruit ducoup la valeur du precedent champs est concerservé.
+     * On applique ce watch et on verra les resultats.
+     * Cela ne s'execute que dans le cadre d'un watch et permet de ressoudre le probleme.
+     */
+    field() {
+      this.input_value = this.getValue();
+    },
+  },
   mounted() {
+    //On recupere la valeur par defaut pour chaque construction:
     this.input_value = this.getValue();
   },
+
   methods: {
     getValidationState({ dirty, validated, valid = null }) {
       return (dirty || validated) && !valid ? valid : null;
@@ -73,7 +86,7 @@ export default {
     getValue() {
       if (this.model[this.field.name] && this.model[this.field.name][0]) {
         return this.model[this.field.name][0].value;
-      }
+      } else return null;
     },
     input(v) {
       const vals = [];

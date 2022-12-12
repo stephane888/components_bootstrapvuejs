@@ -15,12 +15,13 @@
                 <span>{{ val.company }}</span> <span>{{ val.date_debut }}</span>
               </div>
             </div>
-            <div class="icon-buttons" @click="Edit(val)">
+            <div class="icon-buttons">
               <span
                 v-b-tooltip.hover
                 variant="light"
                 class="btn-action mr-5"
                 title="Editer"
+                @click="Edit(val)"
               >
                 <b-icon
                   icon="pencil-fill"
@@ -47,6 +48,7 @@
                 variant="light"
                 class="btn-action mr-4"
                 title="Supprimer"
+                @click="removeField(k)"
               >
                 <b-icon
                   icon="trash-fill"
@@ -88,7 +90,7 @@ const defaultValue = () => {
     address: "",
     date_debut: "",
     date_fin: "",
-    description: "Array",
+    description: "s",
     format: null,
   };
 };
@@ -138,7 +140,7 @@ export default {
     },
     //
     removeField(index) {
-      console.log("removeField : ", index);
+      console.log("removeField in fields : ", index);
       this.$emit("removeField", index);
     },
     Edit(value) {

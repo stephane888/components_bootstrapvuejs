@@ -115,7 +115,7 @@ export default {
           fieldName: this.field.name,
         });
       } else
-        this.$store.dispatch({
+        this.$store.dispatch("setValue", {
           value: vals,
           fieldName: this.field.name,
         });
