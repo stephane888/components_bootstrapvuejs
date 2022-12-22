@@ -1,0 +1,101 @@
+.complexe_field {
+  .field-item-value {
+    cursor: text;
+  }
+  .icon-buttons {
+    > span {
+      cursor: pointer;
+    }
+    .btn-drag-drop {
+      cursor: grab;
+    }
+  }
+  :deep(.add-item-form) {
+    border: 1px solid #ccc;
+    padding: 2rem 2rem;
+
+    .fi-input {
+      text-align: left;
+      margin-bottom: 1.5rem;
+      label {
+        font-size: 14px;
+        color: black;
+      }
+      .custom-checkbox {
+        font-size: 14px;
+      }
+      .form-control {
+        position: relative;
+        border-radius: 4px;
+        background-color: rgb(240, 243, 245);
+        height: 55px;
+        border: 2px solid transparent;
+        transition: ease-in 0.3s;
+        font-size: 14px;
+        align-items: center;
+        &:focus,
+        &:active {
+          background-color: transparent;
+          border-color: rgb(159, 159, 159);
+          box-shadow: none;
+        }
+      }
+      small {
+        font-size: 12px;
+        margin: 3px 14px 0px;
+        color: rgb(90, 94, 97);
+      }
+      .label-respon {
+        font-size: 1.2rem;
+      }
+      &--textarea {
+        .form-control {
+          height: auto;
+          min-height: 200px;
+          padding-top: 20px;
+          padding-bottom: 20px;
+          &:focus,
+          &:active {
+            background-color: rgb(240, 243, 245);
+            border-color: transparent;
+            box-shadow: none;
+          }
+        }
+      }
+    }
+  }
+  .add-new-card {
+    display: flex;
+    box-sizing: border-box;
+    -webkit-box-align: center;
+    width: 100%;
+    align-items: center;
+    padding: 8px 14px;
+    border-radius: 4px;
+    min-height: 60px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out 0s;
+    box-shadow: none;
+    background-color: transparent;
+    border: 2px dashed rgb(183, 220, 250);
+    &:active {
+      background: rgb(30, 109, 109);
+    }
+    .anc-titre {
+      font-size: 18px;
+      line-height: 24px;
+      font-weight: 600;
+      letter-spacing: 0.15px;
+      color: rgb(38, 160, 244);
+      max-width: 100%;
+      padding: 0px 12px;
+      margin: 0px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+  .btn-back {
+    cursor: pointer;
+  }
+}

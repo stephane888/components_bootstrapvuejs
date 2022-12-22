@@ -1,3 +1,6 @@
+//import de ckeditor, ne fonctionne pas lorsqu'on est sur nm run serve.
+import CKEditor from "ckeditor4-vue";
+Vue.use(CKEditor);
 import Vue from "vue";
 import drupalString from "./drupal-string.vue";
 import drupalLink from "./drupal-link.vue";
@@ -8,8 +11,9 @@ import drupalTextLong from "./textarea-ckeditor.vue";
 import htmlRender from "./html-render.vue";
 import drupalFile from "./drupal-file.vue";
 import ExperienceTypeVue from "./ExperienceType.vue";
-import CKEditor from "ckeditor4-vue";
-Vue.use(CKEditor);
+import MultiSelect from "./MultiSelect";
+import ValueNiveau from "./ValueNiveau.vue";
+import DrupalEmailVue from "./DrupalEmail.vue";
 
 export default {
   debug: false,
@@ -24,7 +28,12 @@ export default {
     if (this.debug) console.log(" key : ", key);
     switch (key) {
       case "string":
+      case "string_textfield":
         template = drupalString;
+        break;
+      case "email":
+      case "email_default":
+        template = DrupalEmailVue;
         break;
       case "link":
         template = drupalLink;
@@ -42,16 +51,30 @@ export default {
         template = htmlRender;
         break;
       case "text_long":
+      case "text_textarea":
         template = drupalTextLong;
         break;
       case "image":
+      case "image_image":
         template = drupalFile;
         break;
       case "experience_type":
+      case "experience_widget_type":
         template = ExperienceTypeVue;
         break;
+      case "entity_reference":
+      case "entity_reference_autocomplete":
+        // à ce state, on pourra distinguer plusieurs cas.
+        if (field.definition_settings.target_type == "taxonomy_term") {
+          template = MultiSelect;
+        } else console.log("Champs sans rendu :", key, "\n field : ", field);
+        break;
+      case "value_niveau_type":
+      case "value_niveau_widget_type":
+        template = ValueNiveau;
+        break;
       default:
-        console.log("Champs sans rendu :", key);
+        console.log("Champs sans rendu :", key, "\n field : ", field);
         break;
     }
     return template;

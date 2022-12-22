@@ -8,7 +8,7 @@
               <b-form-checkbox-group v-model="selected" @input="setValue">
                 <b-form-checkbox
                   :value="option.value"
-                  v-for="(option, o) in field.entity_form_settings.list_options"
+                  v-for="(option, o) in field.settings.list_options"
                   :key="o"
                   class="form-check"
                 >
@@ -91,7 +91,7 @@ export default {
      * --
      */
     getImage() {
-      this.field.entity_form_settings.list_options.forEach((option) => {
+      this.field.settings.list_options.forEach((option) => {
         if (!option.image_url) this.$set(option, "image_url", "");
         if (option.image && option.image[0] && option.image_url == "") {
           config.getImageUrl(option.image[0]).then((resp) => {

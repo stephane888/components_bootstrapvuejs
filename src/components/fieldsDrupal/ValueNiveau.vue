@@ -5,16 +5,30 @@
       <div
         v-for="(val, k) in model[field.name]"
         :key="k"
-        class="field-item-value mb-4 item"
+        class="field-item-value mb-4"
       >
         <div class="bg-light p-4 px-5">
           <div class="d-flex justify-content-between align-items-center">
-            <div class="text">
-              <div class="font-weight-bold">{{ val.value }}</div>
+            <div v-if="val" class="text">
+              <div
+                v-if="val && val.target_id && terms['tid-' + val.target_id]"
+                class="font-weight-bold"
+              >
+                {{ terms["tid-" + val.target_id].name }}
+              </div>
+              <i
+                v-if="!terms['tid-' + val.target_id]"
+                class="text-muted font-weight-bold"
+              >
+                Competance ...
+              </i>
               <div class="d-flex">
-                <span>{{ val.company }}</span> <span>{{ val.date_debut }}</span>
+                <span>
+                  {{ field.settings.niveau_options[val.niveau] }}
+                </span>
               </div>
             </div>
+
             <div class="icon-buttons">
               <span
                 v-b-tooltip.hover
@@ -72,32 +86,32 @@
         <h4 class="anc-titre">{{ addButtonTitle }}</h4>
       </div>
     </div>
-    <EditExperienceType
+    <EditValueNiveau
       v-if="showFormEdit"
       :f-value="currentEditValue"
       :field="field"
+      :terms="terms"
       @closeEditForm="closeEditForm"
-    ></EditExperienceType>
+      @setValue="setValue"
+      @addTermsInCache="addTermsInCache"
+    ></EditValueNiveau>
   </div>
 </template>
+
 <script>
-import EditExperienceType from "../Ressouces/EditExperienceType.vue";
+import termsTaxo from "drupal-vuejs/src/App/jsonApi/termsTaxo.js";
+import EditValueNiveau from "../Ressouces/EditValueNiveau.vue";
 import DrapDropHtml5 from "../../js/drap-drop-html5";
 const defaultValue = () => {
   return {
-    value: "Developpeur web",
-    company: "Nutibe",
-    address: "",
-    date_debut: "",
-    date_fin: "",
-    description: "s",
-    format: null,
+    target_id: null,
+    niveau: 1,
   };
 };
 export default {
-  name: "ExperienceType",
+  name: "MultiSelect",
   components: {
-    EditExperienceType,
+    EditValueNiveau,
   },
   props: {
     classCss: {
@@ -106,18 +120,24 @@ export default {
         return [];
       },
     },
+    field: { type: Object, required: true },
+    model: { type: [Object, Array], required: true },
+    namespaceStore: { type: String, required: true },
     addButtonTitle: {
       type: String,
       default: "Ajouter",
     },
-    field: { type: Object, required: true },
-    model: { type: [Object, Array], required: true },
   },
   data() {
     return {
       idHtml: "sort-" + Math.random().toString(36),
       currentEditValue: {},
       showFormEdit: false,
+      /**
+       * Contient les termes recuperés.
+       * ( Evite d'effectuer pluiseurs requetes pour un meme terme )
+       */
+      terms: {},
       sortable: null,
     };
   },
@@ -140,21 +160,15 @@ export default {
   mounted() {
     this.initSortable();
     this.drap_drop_event();
+    this.loadDefaults();
   },
   methods: {
-    input(v) {
-      const vals = [];
-      vals.push({ value: v });
-      // this.setValue(vals);
-    },
-    //
     add() {
       this.$emit("addNewValue", defaultValue());
       this.destroyedSortable();
     },
     //
     removeField(index) {
-      console.log("removeField in fields : ", index);
       this.$emit("removeField", index);
     },
     Edit(value) {
@@ -163,6 +177,56 @@ export default {
     },
     closeEditForm() {
       this.showFormEdit = false;
+    },
+    getTermByTid(tid) {
+      if (!this.terms["tid-" + tid]) {
+        // Doit etre dynamique.
+        let vocabulary = "domaine_competance";
+        const terms = new termsTaxo(vocabulary);
+        terms.getValueByTid(tid).then((resp) => {
+          if (resp.data[0] && resp.data[0].attributes)
+            this.$set(this.terms, "tid-" + tid, resp.data[0].attributes);
+          else this.$set(this.terms, "tid-" + tid, {});
+        });
+      }
+    },
+    addTermsInCache(vals) {
+      vals.forEach((term) => {
+        if (!this.terms["tid-" + term.attributes.drupal_internal__tid]) {
+          this.$set(
+            this.terms,
+            "tid-" + term.attributes.drupal_internal__tid,
+            term.attributes
+          );
+        }
+      });
+    },
+    loadDefaults() {
+      this.model[this.field.name].forEach((item) => {
+        this.getTermByTid(item.target_id);
+      });
+    },
+    /**
+     * On passe les données valides au champs.
+     */
+    setValue() {
+      const vals = [];
+      // suppression des donnée non valide.
+      this.model[this.field.name].forEach((item) => {
+        if (item.target_id) {
+          vals.push(item);
+        }
+      });
+      if (this.namespaceStore) {
+        this.$store.dispatch(this.namespaceStore + "/setValue", {
+          value: vals,
+          fieldName: this.field.name,
+        });
+      } else
+        this.$store.dispatch("setValue", {
+          value: vals,
+          fieldName: this.field.name,
+        });
     },
     drap_drop_event() {
       document.addEventListener(

@@ -23,6 +23,7 @@
 </template>
 
 <script>
+import CKEditor from "ckeditor4-vue";
 import { ValidationProvider } from "vee-validate";
 import "./vee-validation-rules";
 import config from "./loadField";
@@ -30,6 +31,7 @@ export default {
   name: "TextareaCkeditor",
   components: {
     ValidationProvider,
+    ckeditor: CKEditor.component,
   },
   props: {
     classCss: {

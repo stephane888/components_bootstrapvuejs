@@ -6,15 +6,12 @@
           <div class="fieldset-wrapper">
             <div
               class="radio"
-              v-if="
-                field.entity_form_settings &&
-                field.entity_form_settings.list_options
-              "
+              v-if="field.settings && field.settings.list_options"
             >
               <b-form-radio
                 v-model="selected"
                 :name="field.name"
-                v-for="(option, o) in field.entity_form_settings.list_options"
+                v-for="(option, o) in field.settings.list_options"
                 :key="o"
                 :value="option.value"
                 class="form-check"
@@ -109,11 +106,8 @@ export default {
 
   methods: {
     getImage() {
-      if (
-        this.field.entity_form_settings &&
-        this.field.entity_form_settings.list_options
-      )
-        this.field.entity_form_settings.list_options.forEach((option) => {
+      if (this.field.settings && this.field.settings.list_options)
+        this.field.settings.list_options.forEach((option) => {
           if (!option.image_url) this.$set(option, "image_url", "");
           if (option.image[0] && option.image_url == "") {
             config.getImageUrl(option.image[0]).then((resp) => {

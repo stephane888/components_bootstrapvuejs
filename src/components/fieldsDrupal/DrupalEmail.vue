@@ -9,6 +9,7 @@
             :state="getValidationState(v)"
             :name="field.name"
             debounce="500"
+            type="email"
             @input="input"
           ></b-form-input>
         </div>
@@ -27,7 +28,7 @@ import { ValidationProvider } from "vee-validate";
 import "./vee-validation-rules";
 import loadField from "./loadField";
 export default {
-  name: "DrupalString",
+  name: "DrupalEmail",
   components: {
     ValidationProvider,
   },
