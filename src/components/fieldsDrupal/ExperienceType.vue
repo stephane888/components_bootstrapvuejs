@@ -12,7 +12,10 @@
             <div class="text">
               <div class="font-weight-bold">{{ val.value }}</div>
               <div class="d-flex">
-                <span>{{ val.company }}</span> <span>{{ val.date_debut }}</span>
+                <span>{{ val.company }}</span>
+                <span class="d-inline-block pl-3">
+                  {{ getDateInFrench(val.date_debut) }}
+                </span>
               </div>
             </div>
             <div class="icon-buttons">
@@ -84,13 +87,15 @@
 import EditExperienceType from "../Ressouces/EditExperienceType.vue";
 import DrapDropHtml5 from "../../js/drap-drop-html5";
 const defaultValue = () => {
+  const date = new Date();
+  var date_string = date.getTime() / 1000;
   return {
     value: "Developpeur web",
-    company: "Nutibe",
-    address: "",
-    date_debut: "",
-    date_fin: "",
-    description: "s",
+    company: "Wb-Horizon",
+    address: "Paris France",
+    date_debut: date_string,
+    date_fin: date_string,
+    description: "Votre description ...",
     format: null,
   };
 };
@@ -189,6 +194,19 @@ export default {
         );
         this.sortable.sortable();
       }
+    },
+    getDateInFrench(val) {
+      val = parseInt(val) * 1000;
+      if (val) {
+        const date = new Date();
+        date.setTime(val);
+        var date_string = date.getDate();
+        date_string += "-";
+        date_string += parseInt(date.getMonth()) + 1;
+        date_string += "-";
+        date_string += date.getFullYear();
+        return date_string;
+      } else return;
     },
   },
 };

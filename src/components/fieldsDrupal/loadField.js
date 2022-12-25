@@ -7,7 +7,7 @@ import drupalLink from "./drupal-link.vue";
 import drupalColor from "./drupal-color.vue";
 import drupalBoolean from "./drupal-boolean.vue";
 import drupalListString from "./drupal-list-string.vue";
-import drupalTextLong from "./textarea-ckeditor.vue";
+import drupalTextLong from "./TextareaCkeditor.vue";
 import htmlRender from "./html-render.vue";
 import drupalFile from "./drupal-file.vue";
 import ExperienceTypeVue from "./ExperienceType.vue";
@@ -65,7 +65,10 @@ export default {
       case "entity_reference":
       case "entity_reference_autocomplete":
         // à ce state, on pourra distinguer plusieurs cas.
-        if (field.definition_settings.target_type == "taxonomy_term") {
+        if (
+          field.definition_settings &&
+          field.definition_settings.target_type == "taxonomy_term"
+        ) {
           template = MultiSelect;
         } else console.log("Champs sans rendu :", key, "\n field : ", field);
         break;

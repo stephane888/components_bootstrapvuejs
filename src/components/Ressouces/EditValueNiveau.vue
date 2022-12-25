@@ -159,7 +159,7 @@ export default {
     asyncFind(search) {
       if (search.length >= 2) {
         // Doit etre dynamique.
-        let vocabulary = "domaine_competance";
+        let vocabulary = "domaine_Compétence";
         const terms = new termsTaxo(vocabulary);
         this.isLoading = true;
         terms.getSearch(search).then(() => {

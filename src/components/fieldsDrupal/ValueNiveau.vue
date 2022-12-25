@@ -20,7 +20,7 @@
                 v-if="!terms['tid-' + val.target_id]"
                 class="text-muted font-weight-bold"
               >
-                Competance ...
+                Compétence ...
               </i>
               <div class="d-flex">
                 <span>
@@ -181,7 +181,7 @@ export default {
     getTermByTid(tid) {
       if (!this.terms["tid-" + tid]) {
         // Doit etre dynamique.
-        let vocabulary = "domaine_competance";
+        let vocabulary = "domaine_Compétence";
         const terms = new termsTaxo(vocabulary);
         terms.getValueByTid(tid).then((resp) => {
           if (resp.data[0] && resp.data[0].attributes)

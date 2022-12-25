@@ -44,7 +44,6 @@ export default {
     model: { type: [Object, Array], required: true },
     namespaceStore: { type: String, required: true },
   },
-
   data() {
     return {
       editorData: "",
@@ -96,7 +95,6 @@ export default {
               breakBeforeClose: false,
               breakAfterClose: false,
             });
-
             ev.sender.dataProcessor.writer.setRules("h2", {
               indent: true,
               breakBeforeOpen: false,
@@ -157,7 +155,6 @@ export default {
   mounted() {
     this.editorData = this.getValue();
   },
-
   methods: {
     getValidationState({ dirty, validated, valid = null }) {
       return (dirty || validated) && !valid ? valid : null;
