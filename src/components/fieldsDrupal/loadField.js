@@ -1,7 +1,7 @@
-//import de ckeditor, ne fonctionne pas lorsqu'on est sur nm run serve.
-import CKEditor from "ckeditor4-vue";
-Vue.use(CKEditor);
-import Vue from "vue";
+// import de ckeditor, ne fonctionne pas lorsqu'on est sur nm run serve.
+// import CKEditor from "ckeditor4-vue";
+// Vue.use(CKEditor);
+// import Vue from "vue";
 import drupalString from "./drupal-string.vue";
 import drupalLink from "./drupal-link.vue";
 import drupalColor from "./drupal-color.vue";

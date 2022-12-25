@@ -44,6 +44,7 @@ export default {
     model: { type: [Object, Array], required: true },
     namespaceStore: { type: String, required: true },
   },
+
   data() {
     return {
       editorData: "",
@@ -68,10 +69,11 @@ export default {
             ],
           },
         ],
-        contentsCss:
-          "@import '" +
-          config.config.getBaseUrl() +
-          "/themes/contrib/wb_universe/node_modules/%40fortawesome/fontawesome-free/css/all.min.css'; @import 'http://wb-horizon.com/themes/custom/wb_horizon_com/css/vendor-style.css';",
+        // on doit trouver un moyen de rendre cette
+        // contentsCss:
+        //   "@import '" +
+        //   config.config.getBaseUrl() +
+        //   "/themes/contrib/wb_universe/node_modules/%40fortawesome/fontawesome-free/css/all.min.css'; @import 'http://wb-horizon.com/themes/custom/wb_horizon_com/css/vendor-style.css';",
         on: {
           instanceReady: function (ev) {
             ev.sender.dataProcessor.writer.setRules("p", {
@@ -95,6 +97,7 @@ export default {
               breakBeforeClose: false,
               breakAfterClose: false,
             });
+
             ev.sender.dataProcessor.writer.setRules("h2", {
               indent: true,
               breakBeforeOpen: false,
@@ -155,6 +158,7 @@ export default {
   mounted() {
     this.editorData = this.getValue();
   },
+
   methods: {
     getValidationState({ dirty, validated, valid = null }) {
       return (dirty || validated) && !valid ? valid : null;
