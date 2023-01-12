@@ -1,8 +1,14 @@
 <template>
   <div :class="classCss">
-    <ValidationProvider :name="field.name" :rules="getRules()" v-slot="v">
+    <ValidationProvider :name="fullname" :rules="getRules()" v-slot="v">
       <b-form-group :label="field.label" :description="field.description">
-        <div class="autocomplete">
+        <div
+          v-if="
+            field.definition_settings &&
+            field.definition_settings.target_type == 'taxonomy_term'
+          "
+          class="autocomplete"
+        >
           <multiselect
             v-model="model.value"
             :options="options"
@@ -11,7 +17,7 @@
             label="text"
             track-by="text"
             :show-no-results="false"
-            :showLabels="false"
+            :show-labels="false"
             :loading="isLoading"
             @search-change="asyncFind"
             @select="selectUser"
@@ -32,6 +38,7 @@
             </small>
           </div>
         </div>
+        <div v-else class="autocomplete"></div>
       </b-form-group>
     </ValidationProvider>
   </div>
@@ -65,6 +72,11 @@ export default {
       options: [],
     };
   },
+  computed: {
+    fullname() {
+      return this.parentName + this.field.name;
+    },
+  },
   methods: {
     getValidationState({ dirty, validated, valid = null }) {
       return (dirty || validated) && !valid ? valid : null;
@@ -77,12 +89,12 @@ export default {
       if (this.namespaceStore) {
         this.$store.dispatch(this.namespaceStore + "/setValue", {
           value: vals,
-          fieldName: this.field.name,
+          fieldName: this.fullname,
         });
       } else
         this.$store.dispatch("setValue", {
           value: vals,
-          fieldName: this.field.name,
+          fieldName: this.fullname,
         });
     },
     getValue() {

@@ -5,7 +5,7 @@
 import drupalString from "./drupal-string.vue";
 import drupalLink from "./drupal-link.vue";
 import drupalColor from "./drupal-color.vue";
-import drupalBoolean from "./drupal-boolean.vue";
+import drupalRadios from "./DrupalRadios.vue";
 import drupalListString from "./drupal-list-string.vue";
 import drupalTextLong from "./TextareaCkeditor.vue";
 import htmlRender from "./html-render.vue";
@@ -14,9 +14,17 @@ import ExperienceTypeVue from "./ExperienceType.vue";
 import MultiSelect from "./MultiSelect";
 import ValueNiveau from "./ValueNiveau.vue";
 import DrupalEmailVue from "./DrupalEmail.vue";
+import DrupalCheckbox from "./DrupalCheckbox.vue";
+import DateRange from "./DateRange.vue";
+import CreationSitevirtuelComplexinline from "./CreationSitevirtuelComplexinline.vue";
+
+// load Container
+import SimpleCard from "../Containers/SimpleCard.vue";
+import NoContainer from "../Containers/NoContainer.vue";
 
 export default {
   debug: false,
+  timeToWait: 800,
   /**
    * Contient les methodes de wbu-utilities provenant du parent.
    */
@@ -36,13 +44,25 @@ export default {
         template = DrupalEmailVue;
         break;
       case "link":
+      case "link_default":
         template = drupalLink;
+        break;
+      case "daterange_default":
+        template = DateRange;
         break;
       case "color_theme_field_type":
         template = drupalColor;
         break;
       case "boolean":
-        template = drupalBoolean;
+      case "options_select":
+        template = drupalRadios;
+        break;
+      case "options_buttons":
+        if (field.cardinality === 1) template = drupalRadios;
+        else template = DrupalCheckbox;
+        break;
+      case "boolean_checkbox":
+        template = DrupalCheckbox;
         break;
       case "list_string":
         template = drupalListString;
@@ -52,6 +72,7 @@ export default {
         break;
       case "text_long":
       case "text_textarea":
+      case "text_textarea_with_summary":
         template = drupalTextLong;
         break;
       case "image":
@@ -64,17 +85,14 @@ export default {
         break;
       case "entity_reference":
       case "entity_reference_autocomplete":
-        // à ce state, on pourra distinguer plusieurs cas.
-        if (
-          field.definition_settings &&
-          field.definition_settings.target_type == "taxonomy_term"
-        ) {
-          template = MultiSelect;
-        } else console.log("Champs sans rendu :", key, "\n field : ", field);
+        template = MultiSelect;
         break;
       case "value_niveau_type":
       case "value_niveau_widget_type":
         template = ValueNiveau;
+        break;
+      case "creationsitevirtuelcomplexinline":
+        template = CreationSitevirtuelComplexinline;
         break;
       default:
         console.log("Champs sans rendu :", key, "\n field : ", field);
@@ -96,7 +114,20 @@ export default {
     }
     return rules;
   },
-  getConfig(config) {
+  setConfig(config) {
     this.config = config;
+  },
+  /**
+   *
+   * @param {String} container_name
+   */
+  getContainer(container_name) {
+    var template = NoContainer;
+    switch (container_name) {
+      case "simple_card":
+        template = SimpleCard;
+        break;
+    }
+    return template;
   },
 };

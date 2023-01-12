@@ -117,6 +117,10 @@ export default {
     },
     field: { type: Object, required: true },
     model: { type: [Object, Array], required: true },
+    parentName: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {
@@ -129,6 +133,9 @@ export default {
   computed: {
     event_name() {
       return "drap-drop-html5" + this.idHtml;
+    },
+    fullname() {
+      return this.parentName + this.field.name;
     },
   },
   watch: {

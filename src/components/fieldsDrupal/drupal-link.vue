@@ -1,24 +1,24 @@
 <template>
-  <div :class="class_css">
-    <ValidationProvider :name="field.name" :rules="getRules()" v-slot="v">
+  <div :class="classCss">
+    <ValidationProvider v-slot="v" :name="fullname" :rules="getRules()">
       <b-form-group :label="field.label" :description="field.description">
         <div class="field-item-value">
           <b-form-input
             v-model="input_value.title"
             :placeholder="field.placeholder"
             :state="getValidationState(v)"
-            :name="field.name + 'title'"
+            :name="fullname + 'title'"
             @input="input"
           ></b-form-input>
           <b-form-input
             v-model="input_value.uri"
             :placeholder="field.placeholder"
             :state="getValidationState(v)"
-            :name="field.name + 'url'"
+            :name="fullname + 'url'"
             @input="input"
           ></b-form-input>
         </div>
-        <div class="text-danger my-2" v-if="v.errors">
+        <div v-if="v.errors" class="text-danger my-2">
           <small v-for="(error, ii) in v.errors" :key="ii" class="d-block">
             {{ error }}
           </small>
@@ -33,21 +33,36 @@ import { ValidationProvider } from "vee-validate";
 import "./vee-validation-rules";
 import config from "./loadField";
 export default {
-  name: "drupal-link",
-  props: {
-    class_css: { type: [Array] },
-    field: { type: Object, required: true },
-    model: { type: [Object, Array], required: true },
-    namespaceStore: { type: String, required: true },
-  },
+  name: "DrupalLink",
   components: {
     ValidationProvider,
   },
+  props: {
+    classCss: {
+      type: [Array],
+      default: function () {
+        return [];
+      },
+    },
+    field: { type: Object, required: true },
+    model: { type: [Object, Array], required: true },
+    namespaceStore: { type: String, required: true },
+    parentName: {
+      type: String,
+      required: true,
+    },
+  },
+
   data() {
     return {
       input_value: { title: "", uri: "#" },
       timer: null,
     };
+  },
+  computed: {
+    fullname() {
+      return this.parentName + this.field.name;
+    },
   },
   mounted() {
     this.input_value = this.getValue();
@@ -63,12 +78,12 @@ export default {
       if (this.namespaceStore) {
         this.$store.dispatch(this.namespaceStore + "/setValue", {
           value: vals,
-          fieldName: this.field.name,
+          fieldName: this.fullname,
         });
       } else
         this.$store.dispatch("setValue", {
           value: vals,
-          fieldName: this.field.name,
+          fieldName: this.fullname,
         });
     },
     getValue() {
@@ -97,7 +112,7 @@ export default {
         };
         vals.push(value);
         this.setValue(vals);
-      }, 500);
+      }, config.timeToWait);
     },
   },
 };

@@ -2,7 +2,7 @@
   <div :class="classCss" class="mb-4">
     <ValidationProvider
       v-slot="v"
-      :name="field.label"
+      :name="fullname"
       :rules="{ required: true }"
       class="form-group"
     >
@@ -43,6 +43,10 @@ export default {
     field: { type: Object, required: true },
     model: { type: [Object, Array], required: true },
     namespaceStore: { type: String, required: true },
+    parentName: {
+      type: String,
+      required: true,
+    },
   },
 
   data() {
@@ -69,7 +73,7 @@ export default {
             ],
           },
         ],
-        // on doit trouver un moyen de rendre cette
+        // On doit trouver un moyen de rendre cette
         // contentsCss:
         //   "@import '" +
         //   config.config.getBaseUrl() +
@@ -143,6 +147,7 @@ export default {
           },
         },
       },
+      timeout: null,
     };
   },
   computed: {
@@ -153,6 +158,9 @@ export default {
         extraPlugins: extraPlugins,
         ...this.preEditorConfig,
       };
+    },
+    fullname() {
+      return this.parentName + this.field.name;
     },
   },
   mounted() {
@@ -167,16 +175,19 @@ export default {
       return config.getRules(this.field);
     },
     setValue(vals) {
-      if (this.namespaceStore) {
-        this.$store.dispatch(this.namespaceStore + "/setValue", {
-          value: vals,
-          fieldName: this.field.name,
-        });
-      } else
-        this.$store.dispatch("setValue", {
-          value: vals,
-          fieldName: this.field.name,
-        });
+      clearTimeout(this.timeout);
+      this.timeout = setTimeout(() => {
+        if (this.namespaceStore) {
+          this.$store.dispatch(this.namespaceStore + "/setValue", {
+            value: vals,
+            fieldName: this.fullname,
+          });
+        } else
+          this.$store.dispatch("setValue", {
+            value: vals,
+            fieldName: this.fullname,
+          });
+      }, config.timeToWait);
     },
     getValue() {
       if (this.model[this.field.name] && this.model[this.field.name][0]) {

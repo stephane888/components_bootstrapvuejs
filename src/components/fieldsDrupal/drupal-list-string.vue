@@ -26,12 +26,12 @@
                   </transition>
                   <div class="mt-5">{{ option.label }}</div>
                   <div
-                    class="mt-5 text-hover"
-                    v-html="option.description.value"
                     v-if="
                       option.description.value &&
                       option.description.value !== ''
                     "
+                    class="mt-5 text-hover"
+                    v-html="option.description.value"
                   ></div>
                 </b-form-checkbox>
               </b-form-checkbox-group>

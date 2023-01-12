@@ -1,18 +1,51 @@
 <template>
-  <div :class="class_css" field="drupal_boolean">
+  <div :class="classCss" field="drupal_boolean">
     <div class="field-item-value js-form-type-radio" :format_val="format_val">
-      <ValidationProvider :name="field.name" :rules="getRules()" v-slot="v">
-        <b-form-group :label="field.label" :name="field.name">
+      <ValidationProvider :name="fullname" :rules="getRules()" v-slot="v">
+        <!-- On a different cas de figure-->
+        <OptionsTaxonomy
+          v-if="
+            field.definition_settings.target_type &&
+            field.definition_settings.target_type == 'taxonomy_term'
+          "
+          :field="field"
+          :model="model"
+          :namespace-store="namespaceStore"
+          @setValue="setValue"
+        >
+        </OptionsTaxonomy>
+        <OptionsAllowedValues
+          v-else-if="
+            field.definition_settings.allowed_values &&
+            Object.keys(field.definition_settings.allowed_values).length > 0
+          "
+          :field="field"
+          :model="model"
+          :namespace-store="namespaceStore"
+          @setValue="setValue"
+        ></OptionsAllowedValues>
+        <OptionsEntities
+          v-else-if="
+            field.definition_settings.target_type &&
+            field.definition_settings.target_type != ''
+          "
+          :field="field"
+          :model="model"
+          :namespace-store="namespaceStore"
+          @setValue="setValue"
+        >
+        </OptionsEntities>
+        <b-form-group v-else :label="field.label" :name="fullname">
           <div class="fieldset-wrapper">
             <div
-              class="radio"
               v-if="field.settings && field.settings.list_options"
+              class="radio"
             >
               <b-form-radio
-                v-model="selected"
-                :name="field.name"
                 v-for="(option, o) in field.settings.list_options"
                 :key="o"
+                v-model="selected"
+                :name="fullname"
                 :value="option.value"
                 class="form-check"
                 :state="getValidationState(v)"
@@ -20,11 +53,11 @@
                 <transition name="fade" mode="out-in">
                   <div>
                     <b-img
+                      v-if="option.image_url"
                       thumbnail
                       fluid
                       :src="option.image_url"
                       alt="Image 1"
-                      v-if="option.image_url"
                     ></b-img>
                     <svgLoader v-if="!option.image_url"></svgLoader>
                   </div>
@@ -53,20 +86,38 @@
 
 <script>
 import config from "./loadField";
-import { ValidationProvider } from "vee-validate";
-import "./vee-validation-rules";
+// import { ValidationProvider } from "vee-validate";
+// import "./vee-validation-rules";
 import svgLoader from "./svg-preloader.vue";
 export default {
-  name: "DrupalBoolean",
+  name: "DrupalRadios",
   components: {
-    ValidationProvider,
+    // ValidationProvider,
     svgLoader,
+    OptionsTaxonomy: () => {
+      return import("../Ressouces/OptionsTaxonomy.vue");
+    },
+    OptionsAllowedValues: () => {
+      return import("../Ressouces/OptionsAllowedValues.vue");
+    },
+    OptionsEntities: () => {
+      return import("../Ressouces/OptionsEntities.vue");
+    },
   },
   props: {
-    class_css: { type: [Array] },
+    classCss: {
+      type: [Array],
+      default: function () {
+        return [];
+      },
+    },
     field: { type: Object, required: true },
     model: { type: [Object, Array], required: true },
     namespaceStore: { type: String, required: true },
+    parentName: {
+      type: String,
+      required: true,
+    },
   },
 
   data() {
@@ -82,12 +133,15 @@ export default {
       const vals = [];
       if (this.selected !== null) {
         vals.push({ value: this.selected });
+        this.setValue(vals);
       }
-      this.setValue(vals);
       return vals;
     },
     fieldName() {
       return this.field.name;
+    },
+    fullname() {
+      return this.parentName + this.field.name;
     },
   },
   watch: {
@@ -120,12 +174,12 @@ export default {
       if (this.namespaceStore) {
         this.$store.dispatch(this.namespaceStore + "/setValue", {
           value: vals,
-          fieldName: this.field.name,
+          fieldName: this.fullname,
         });
       } else
         this.$store.dispatch("setValue", {
           value: vals,
-          fieldName: this.field.name,
+          fieldName: this.fullname,
         });
     },
     getValidationState({ dirty, validated, valid = null }) {

@@ -1,6 +1,6 @@
 <template>
   <div class="vuejs-uploader" :class="classCss">
-    <ValidationProvider :name="field.name" :rules="getRules()" v-slot="v">
+    <ValidationProvider :name="fullname" :rules="getRules()" v-slot="v">
       <b-form-group :label="field.label" :description="field.description">
         <b-form-file
           v-model="files"
@@ -10,6 +10,7 @@
           accept=".jpg, .png, .gif, webp"
           size="sm"
           :state="getValidationState(v)"
+          :name="fullname"
           @input="previewImage"
         ></b-form-file>
       </b-form-group>
@@ -50,6 +51,10 @@ export default {
     field: { type: Object, required: true },
     model: { type: [Object, Array], required: true },
     namespaceStore: { type: String, required: true },
+    parentName: {
+      type: String,
+      required: true,
+    },
   },
 
   data() {
@@ -69,6 +74,9 @@ export default {
       } else {
         return false;
       }
+    },
+    fullname() {
+      return this.parentName + this.field.name;
     },
   },
   mounted() {
@@ -141,12 +149,12 @@ export default {
       if (this.namespaceStore) {
         this.$store.dispatch(this.namespaceStore + "/setValue", {
           value: vals,
-          fieldName: this.field.name,
+          fieldName: this.fullname,
         });
       } else
         this.$store.dispatch("setValue", {
           value: vals,
-          fieldName: this.field.name,
+          fieldName: this.fullname,
         });
     },
     getValue() {
