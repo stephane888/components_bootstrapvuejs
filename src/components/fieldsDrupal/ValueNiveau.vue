@@ -181,7 +181,7 @@ export default {
     getTermByTid(tid) {
       if (!this.terms["tid-" + tid]) {
         // Doit etre dynamique.
-        let vocabulary = "domaine_Compétence";
+        let vocabulary = this.getFistVocab();
         const terms = new termsTaxo(vocabulary);
         terms.getValueByTid(tid).then((resp) => {
           if (resp.data[0] && resp.data[0].attributes)
@@ -189,6 +189,18 @@ export default {
           else this.$set(this.terms, "tid-" + tid, {});
         });
       }
+    },
+    getFistVocab() {
+      if (this.field.definition_settings.handler_settings.target_bundles) {
+        const keys = Object.keys(
+          this.field.definition_settings.handler_settings.target_bundles
+        );
+        return this.field.definition_settings.handler_settings.target_bundles[
+          keys[0]
+        ];
+      } else if (this.field.definition_settings.target_type) {
+        return this.field.definition_settings.target_type;
+      } else return null;
     },
     addTermsInCache(vals) {
       vals.forEach((term) => {

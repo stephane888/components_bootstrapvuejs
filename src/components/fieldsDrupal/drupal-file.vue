@@ -3,21 +3,21 @@
     <ValidationProvider :name="fullname" :rules="getRules()" v-slot="v">
       <b-form-group :label="field.label" :description="field.description">
         <b-form-file
+          v-if="cardinality | (toUplode.length == 0)"
           v-model="files"
           placeholder="Ajouter un fichier ..."
           drop-placeholder="Drop file here..."
           :multiple="cardinality"
           accept=".jpg, .png, .gif, webp"
-          size="sm"
+          size="md"
           :state="getValidationState(v)"
           :name="fullname"
           @input="previewImage"
         ></b-form-file>
       </b-form-group>
     </ValidationProvider>
-
-    <div class="previews">
-      <div v-for="(fil, i) in toUplode" :key="i">
+    <div class="previews d-flex flex-wrap">
+      <div v-for="(fil, i) in toUplode" :key="i" class="item">
         <b-img
           :src="fil.url"
           fluid
@@ -25,6 +25,14 @@
           thumbnail
           class="img-preview"
         ></b-img>
+        <b-icon
+          v-b-tooltip.v-danger="' Supprimer l\'image '"
+          icon="x"
+          font-scale="2"
+          variant="danger"
+          class="icon-delete"
+          @click="delete_file(i, fil)"
+        ></b-icon>
       </div>
     </div>
   </div>
@@ -61,9 +69,7 @@ export default {
     return {
       // Fichiers provenant de l'action utilisateur.
       files: [],
-      // Fichiers pour la preview.
-      urls: [],
-      // Fichiers qui doivent etre uploader
+      // Fichiers uploaded.
       toUplode: [],
     };
   },
@@ -101,48 +107,71 @@ export default {
      * @param {*} files
      */
     previewImage(files) {
+      // ceci permet de faire patienter l'utilisateur, le temps de traitement de l'image.
+      setTimeout(() => {
+        if (this.namespaceStore)
+          this.$store.commit(this.namespaceStore + "/DISABLE_RUNNING");
+        else this.$store.commit("DISABLE_RUNNING");
+      }, 1000);
       // preview
       var reader = new FileReader();
       if (this.cardinality) {
+        var vals = [];
+        // si on a deja ds images
+        if (this.model[this.field.name] && this.model[this.field.name].length) {
+          vals = this.model[this.field.name];
+        }
         for (const i in files) {
           const file = files[i];
           // Send images.
-          request.config.postFile("/filesmanager/post", file).then((resp) => {
-            reader.onload = (read) => {
-              this.toUplode.push({
-                file: file,
-                status: resp,
-                error: 0,
-                url: read.target.result,
-              });
-            };
-            reader.readAsDataURL(file);
-          });
+          request.config
+            .postFile("/filesmanager/post", file)
+            .then((resp) => {
+              reader.onload = (read) => {
+                this.toUplode.push({
+                  file: file,
+                  status: resp,
+                  error: 0,
+                  url: read.target.result,
+                  target_id: resp.id,
+                });
+              };
+              reader.readAsDataURL(file);
+              vals.push({ target_id: resp.id });
+              // On ajoute les images progressivement dans le champs.
+              this.setValue(vals);
+            })
+            .catch((er) => {
+              console.log("er", er);
+              // On doi traiter l'affichage des erreurs des messages.
+            });
         }
       } else {
         const vals = [];
         this.toUplode = [];
-        request.config.postFile("/filesmanager/post", files).then((resp) => {
-          if (this.namespaceStore)
-            this.$store.commit(this.namespaceStore + "/ACTIVE_RUNNING");
-          else this.$store.commit("ACTIVE_RUNNING");
-          reader.onload = (read) => {
-            this.toUplode.push({
-              file: files,
-              status: resp,
-              error: 0,
-              url: read.target.result,
-            });
-            setTimeout(() => {
-              if (this.namespaceStore)
-                this.$store.commit(this.namespaceStore + "/DISABLE_RUNNING");
-              else this.$store.commit("DISABLE_RUNNING");
-            }, 300);
-          };
-          reader.readAsDataURL(files);
-          vals.push({ target_id: resp.id });
-          this.setValue(vals);
-        });
+        request.config
+          .postFile("/filesmanager/post", files)
+          .then((resp) => {
+            if (this.namespaceStore)
+              this.$store.commit(this.namespaceStore + "/ACTIVE_RUNNING");
+            else this.$store.commit("ACTIVE_RUNNING");
+            reader.onload = (read) => {
+              this.toUplode.push({
+                file: files,
+                status: resp,
+                error: 0,
+                url: read.target.result,
+                target_id: resp.id,
+              });
+            };
+            reader.readAsDataURL(files);
+            vals.push({ target_id: resp.id });
+            this.setValue(vals);
+          })
+          .catch((er) => {
+            console.log("er", er);
+            // On doi traiter l'affichage des erreurs des messages.
+          });
       }
     },
     setValue(vals) {
@@ -161,11 +190,47 @@ export default {
       if (this.model[this.field.name] && this.model[this.field.name].length) {
         this.toUplode = [];
         this.model[this.field.name].forEach((item) => {
-          if (request.config)
-            request.getImageUrl(item.target_id).then((resp) => {
-              this.toUplode.push({ url: resp.data });
-            });
+          if (request.config) {
+            const toUplode = {
+              url: "",
+              target_id: item.target_id,
+            };
+            if (item.target_id)
+              request.getImageUrl(item.target_id).then((resp) => {
+                toUplode.url = resp.data;
+                this.toUplode.push(toUplode);
+              });
+          }
         });
+      }
+    },
+    delete_file(index, file) {
+      if (
+        file.target_id &&
+        this.field.definition_settings &&
+        this.field.definition_settings.module_name
+      ) {
+        request.config
+          .get(
+            "/filesmanager/delete/" +
+              file.target_id +
+              "/" +
+              this.field.definition_settings.module_name
+          )
+          .then(() => {
+            this.toUplode.splice(index, 1);
+            this.removeValue(file.target_id);
+          });
+      }
+    },
+    removeValue(target_id) {
+      if (this.model[this.field.name] && this.model[this.field.name].length) {
+        const oldValues = this.model[this.field.name];
+        const vals = [];
+        oldValues.forEach((item) => {
+          if (item.target_id != target_id) vals.push(item);
+        });
+        this.setValue(vals);
       }
     },
   },

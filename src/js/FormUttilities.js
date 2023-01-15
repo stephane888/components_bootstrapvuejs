@@ -10,7 +10,7 @@ export default {
    * @param {Array} results
    * @returns
    */
-  generateFields(entities, allFields = []) {
+  generateFields(entities, allFields = [], container_entity = "simple_card") {
     entities.forEach((entity) => {
       if (entity.form_sort.length) {
         const fields = [];
@@ -27,7 +27,7 @@ export default {
           fields.push(sf);
         });
         allFields.push({
-          template: loadField.getContainer("simple_card"),
+          template: loadField.getContainer(container_entity),
           fields: fields,
           entity: entity,
         });

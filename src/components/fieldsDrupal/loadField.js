@@ -19,8 +19,9 @@ import DateRange from "./DateRange.vue";
 import CreationSitevirtuelComplexinline from "./CreationSitevirtuelComplexinline.vue";
 
 // load Container
-import SimpleCard from "../Containers/SimpleCard.vue";
 import NoContainer from "../Containers/NoContainer.vue";
+import SimpleCard from "../Containers/SimpleCard.vue";
+import AccordionCard from "../Containers/AccordionCard.vue";
 
 export default {
   debug: false,
@@ -126,6 +127,10 @@ export default {
     switch (container_name) {
       case "simple_card":
         template = SimpleCard;
+        break;
+
+      case "accordion_card":
+        template = AccordionCard;
         break;
     }
     return template;

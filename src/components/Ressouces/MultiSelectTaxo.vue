@@ -38,10 +38,10 @@
 <script>
 import { ValidationProvider } from "vee-validate";
 import Multiselect from "vue-multiselect";
-import itemsEntity from "drupal-vuejs/src/App/jsonApi/itemsEntity.js";
+import termsTaxo from "drupal-vuejs/src/App/jsonApi/termsTaxo.js";
 import loadField from "../fieldsDrupal/loadField.js";
 export default {
-  name: "MultiSelectEntities",
+  name: "MultiSelectTaxo",
   components: {
     ValidationProvider,
     Multiselect,
@@ -71,34 +71,28 @@ export default {
      *
      * @param {*} tid
      */
-    getTermById(tid) {
+    getTermByTid(tid) {
       // Doit etre dynamique.
-      let entity_type_id = this.getFistVocab();
-      if (entity_type_id && loadField.config) {
-        const terms = new itemsEntity(
-          entity_type_id,
-          entity_type_id,
-          loadField.config
-        );
-        terms.getValueById(tid).then((resp) => {
-          if (resp.data[0] && resp.data[0].attributes) {
-            const option = {
-              text: resp.data[0].attributes.name,
-              value: resp.data[0].attributes.drupal_internal__tid,
-            };
-            this.options.push(option);
-            // Par principe on aurra toujours 1 seule valeur
-            this.value_select = option;
-          }
-        });
-      }
+      let vocabulary = this.getFistVocab();
+      const terms = new termsTaxo(vocabulary);
+      terms.getValueByTid(tid).then((resp) => {
+        if (resp.data[0] && resp.data[0].attributes) {
+          const option = {
+            text: resp.data[0].attributes.name,
+            value: resp.data[0].attributes.drupal_internal__tid,
+          };
+          this.options.push(option);
+          // Par principe on aurra toujours 1 seule valeur
+          this.value_select = option;
+        }
+      });
     },
     /**
      *
      */
     loadDefaults() {
       this.model[this.field.name].forEach((item) => {
-        this.getTermById(item.target_id);
+        this.getTermByTid(item.target_id);
       });
     },
     /**
@@ -123,19 +117,13 @@ export default {
     asyncFind(search) {
       if (search.length >= 2) {
         // Doit etre dynamique.
-        let entity_type_id = this.getFistVocab();
-        if (entity_type_id && loadField.config) {
-          const terms = new itemsEntity(
-            entity_type_id,
-            entity_type_id,
-            loadField.config
-          );
-          this.isLoading = true;
-          terms.getSearch(search).then(() => {
-            this.options = terms.getOptions();
-            this.isLoading = false;
-          });
-        }
+        let vocabulary = this.getFistVocab();
+        const terms = new termsTaxo(vocabulary);
+        this.isLoading = true;
+        terms.getSearch(search).then(() => {
+          this.options = terms.getOptions();
+          this.isLoading = false;
+        });
       }
     },
     /**

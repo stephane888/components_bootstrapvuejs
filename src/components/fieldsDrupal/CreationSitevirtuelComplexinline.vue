@@ -1,13 +1,14 @@
 <template>
   <div :class="classCss">
     <b-form-group :label="field.label" :description="field.description">
-      <div>
+      <div class="accordion" role="tablist">
         <component
           :is="container.template"
           v-for="(container, i) in buildFields()"
           :key="i"
           :entity="container.entity"
           :class-entity="['pt-1']"
+          :accordion-container="idAcordion"
           class="mb-3"
         >
           <component
@@ -55,6 +56,11 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      idAcordion: "accordion-" + Math.random().toString(36),
+    };
+  },
   methods: {
     buildFields() {
       var fields = [];
@@ -64,7 +70,11 @@ export default {
         loadfield
       );
       if (this.entities.length) {
-        fields = generateField.generateFields(this.entities, fields);
+        fields = generateField.generateFields(
+          this.entities,
+          fields,
+          "accordion_card"
+        );
       }
       return fields;
     },

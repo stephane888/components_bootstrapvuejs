@@ -122,16 +122,13 @@ export default {
 
   data() {
     return {
-      selected:
-        this.model[this.field.name] && this.model[this.field.name][0]
-          ? this.model[this.field.name][0].value
-          : null,
+      selected: null,
     };
   },
   computed: {
     format_val() {
       const vals = [];
-      if (this.selected !== null) {
+      if (this.selected !== null && this.selected !== undefined) {
         vals.push({ value: this.selected });
         this.setValue(vals);
       }
@@ -171,6 +168,7 @@ export default {
         });
     },
     setValue(vals) {
+      console.log(" setValue : ", this.fullname);
       if (this.namespaceStore) {
         this.$store.dispatch(this.namespaceStore + "/setValue", {
           value: vals,
