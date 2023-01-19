@@ -39,7 +39,7 @@
             </b-input-group-append>
           </b-input-group>
         </b-col>
-        <b-col md="6">
+        <b-col v-if="field.type == 'daterange_default'" md="6">
           <b-input-group>
             <b-form-datepicker
               v-model="date.end_value"
@@ -159,28 +159,63 @@ export default {
           });
       }, loadField.timeToWait);
     },
+    /**
+     *
+     */
     getValue() {
       if (this.model[this.field.name] && this.model[this.field.name][0]) {
-        return {
-          value: this.model[this.field.name][0].value,
-          end_value: this.model[this.field.name][0].end_value,
-        };
+        const D_b = this.getDateFromDateTimeStamp(
+          this.model[this.field.name][0].value
+        );
+        const val = { value: D_b.date, hour_begin: D_b.hour };
+        if (this.field.type == "daterange_default") {
+          const D_f = this.getDateFromDateTimeStamp(
+            this.model[this.field.name][0].end_value
+          );
+          val["end_value"] = D_f.date;
+          val["hour_end"] = D_f.hour;
+        }
+        return val;
       } else return this.currentDate();
     },
-    currentDate() {
+    /**
+     *
+     * @param {*} DateTimeStamp
+     */
+    getDateFromDateTimeStamp(DateTimeStamp) {
       const date = new Date();
+      date.setTime(parseInt(DateTimeStamp) * 1000);
       let month = parseInt(date.getMonth()) + 1;
       return {
-        value: date.getFullYear() + "-" + month + "-" + date.getDate(),
-        end_value: date.getFullYear() + "-" + month + "-" + date.getDate(),
-        hour_begin:
-          date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
-        hour_end:
+        date: date.getFullYear() + "-" + month + "-" + date.getDate(),
+        hour:
           date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
       };
     },
+    /**
+     *
+     */
+    currentDate() {
+      const date = new Date();
+      let month = parseInt(date.getMonth()) + 1;
+      const val = {
+        value: date.getFullYear() + "-" + month + "-" + date.getDate(),
+        hour_begin:
+          date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+      };
+      if (this.field.type == "daterange_default") {
+        val["end_value"] =
+          date.getFullYear() + "-" + month + "-" + date.getDate();
+        val["hour_end"] =
+          date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+      }
+      return val;
+    },
+    /**
+     *
+     */
     date_change_debut() {
-      console.log("date_change_debut : ", this.date);
+      console.log(" date_change_debut : ", this.date);
       const vals = [];
       if (this.date.value) {
         const dateDebut = new Date(
@@ -189,7 +224,7 @@ export default {
         vals.push({ value: dateDebut.getTime() / 1000 });
       }
       //
-      if (this.date.end_value) {
+      if (this.date.end_value && this.field.type == "daterange_default") {
         const dateFin = new Date(
           this.date.end_value + " " + this.date.hour_end
         );

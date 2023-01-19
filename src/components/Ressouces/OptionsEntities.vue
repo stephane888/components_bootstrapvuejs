@@ -51,7 +51,6 @@ export default {
         );
         terms.get().then(() => {
           this.options = terms.getOptions();
-          console.log("this.options : ", this.options);
         });
       }
     },

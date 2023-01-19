@@ -26,6 +26,9 @@
             @array_move="array_move($event, render)"
           ></component>
         </component>
+        <small v-if="buildFields().length == 0" class="text-muted py-2">
+          Aucune section
+        </small>
       </div>
     </b-form-group>
   </div>
@@ -64,11 +67,6 @@ export default {
   methods: {
     buildFields() {
       var fields = [];
-      console.log(
-        "CreationSitevirtuelComplexinline . currentEntityForm  :",
-        this.entities,
-        loadfield
-      );
       if (this.entities.length) {
         fields = generateField.generateFields(
           this.entities,

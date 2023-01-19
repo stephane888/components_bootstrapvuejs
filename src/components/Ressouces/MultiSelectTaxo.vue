@@ -9,20 +9,25 @@
           placeholder=""
           label="text"
           track-by="text"
-          :show-no-results="false"
+          :show-no-results="true"
           :show-labels="false"
           :loading="isLoading"
+          :multiple="cardinality"
+          :allow-empty="true"
           @search-change="asyncFind"
-          @select="selectUser"
         >
           <template slot="noResult">
-            <span class="option__titl d-none"> Aucun contenu </span>
+            <span class="option__title">
+              Aucun contenu ne correspond à votre recherche
+            </span>
           </template>
           <template slot="placeholder">
-            <span class="option__title"> Le terme n'existe pas </span>
+            <span class="option__title"> Aucun contenu ... </span>
           </template>
           <template slot="noOptions">
-            <span class="option__title"> Saisir un terme </span>
+            <span class="option__title">
+              Saisir un ou plusieurs caractères ...
+            </span>
           </template>
         </multiselect>
         <div class="text-danger">
@@ -50,6 +55,10 @@ export default {
     field: { type: Object, required: true },
     model: { type: [Object, Array], required: true },
     namespaceStore: { type: String, required: true },
+    parentName: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {
@@ -62,6 +71,32 @@ export default {
     fullname() {
       return this.parentName + this.field.name;
     },
+    cardinality() {
+      if (this.field.cardinality === -1) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+  },
+  watch: {
+    /**
+     * L'objectif est que cette valeur soit un reflet de la valeur contenu dans l'entité.
+     * @param {*} val
+     */
+    value_select(val) {
+      if (this.cardinality) {
+        const vals = [];
+        val.forEach((item) => {
+          vals.push({ target_id: item.value });
+        });
+        this.setValue(vals);
+      } else {
+        const vals = [];
+        if (val) vals.push({ target_id: val.value });
+        this.setValue(vals);
+      }
+    },
   },
   mounted() {
     this.loadDefaults();
@@ -72,20 +107,23 @@ export default {
      * @param {*} tid
      */
     getTermByTid(tid) {
+      this.isLoading = true;
       // Doit etre dynamique.
       let vocabulary = this.getFistVocab();
       const terms = new termsTaxo(vocabulary);
-      terms.getValueByTid(tid).then((resp) => {
-        if (resp.data[0] && resp.data[0].attributes) {
-          const option = {
-            text: resp.data[0].attributes.name,
-            value: resp.data[0].attributes.drupal_internal__tid,
-          };
-          this.options.push(option);
-          // Par principe on aurra toujours 1 seule valeur
-          this.value_select = option;
-        }
-      });
+      terms
+        .getValueByTid(tid)
+        .then(() => {
+          const options = terms.getOptions();
+          this.options = options;
+          if (this.cardinality) {
+            this.value_select = options;
+          } else if (options[0]) this.value_select = options[0];
+          this.isLoading = false;
+        })
+        .catch(() => {
+          this.isLoading = false;
+        });
     },
     /**
      *
@@ -126,15 +164,7 @@ export default {
         });
       }
     },
-    /**
-     *
-     * @param {*} input
-     */
-    selectUser(input) {
-      const vals = [];
-      vals.push({ target_id: input.value });
-      this.setValue(vals);
-    },
+
     nameWithLang({ text }) {
       return `${text}`;
     },

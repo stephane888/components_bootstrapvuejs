@@ -17,6 +17,9 @@ import DrupalEmailVue from "./DrupalEmail.vue";
 import DrupalCheckbox from "./DrupalCheckbox.vue";
 import DateRange from "./DateRange.vue";
 import CreationSitevirtuelComplexinline from "./CreationSitevirtuelComplexinline.vue";
+import DrupalPriseDefault from "./DrupalPriceDefault.vue";
+import PhysicalDimensionsDefault from "./PhysicalDimensionsDefault.vue";
+import StockLevel from "./StockLevel.vue";
 
 // load Container
 import NoContainer from "../Containers/NoContainer.vue";
@@ -49,6 +52,7 @@ export default {
         template = drupalLink;
         break;
       case "daterange_default":
+      case "datetime_timestamp":
         template = DateRange;
         break;
       case "color_theme_field_type":
@@ -86,6 +90,7 @@ export default {
         break;
       case "entity_reference":
       case "entity_reference_autocomplete":
+      case "select2_entity_reference":
         template = MultiSelect;
         break;
       case "value_niveau_type":
@@ -93,10 +98,21 @@ export default {
         template = ValueNiveau;
         break;
       case "creationsitevirtuelcomplexinline":
+      case "inline_entity_form_complex":
         template = CreationSitevirtuelComplexinline;
         break;
+      case "commerce_price_default":
+      case "commerce_list_price":
+        template = DrupalPriseDefault;
+        break;
+      case "physical_dimensions_default":
+        template = PhysicalDimensionsDefault;
+        break;
+      case "commerce_stock_level_simple_transaction":
+        template = StockLevel;
+        break;
       default:
-        console.log("Champs sans rendu :", key, "\n field : ", field);
+        console.log(" Champs sans rendu : ", key, "\n field : ", field);
         break;
     }
     return template;

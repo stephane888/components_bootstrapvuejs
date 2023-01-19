@@ -1,3 +1,13 @@
+<!--
+ editor-url="https://cdn.ckeditor.com/4.20.1/standard/ckeditor.js" permet de specifier l'url externe.
+ NB: Dans la mesure ou la page dispose deja de ckeditor, le module ne chargera plus le CDN, il va utiliser celui qui est present.
+ Consequence, les plugins peuvent ne plus fonctionner sauf s'ils sont definie dans le nouveau plugin.
+***
+ Vous pouvez egalment utiliser le plugins local qui se trouve dans /themes/contrib/wb_universe/ckeditor/ckeditor.js" via cet attributes
+ editor-url="/themes/contrib/wb_universe/ckeditor/ckeditor.js".
+( pour pallier à ce probleme de ck-editor on va desactivée le module c )
+***
+-->
 <template>
   <div :class="classCss" class="mb-4">
     <ValidationProvider
@@ -6,10 +16,11 @@
       :rules="{ required: true }"
       class="form-group"
     >
-      <legend v-html="field.label"></legend>
+      <legend>{{ field.label }}</legend>
       <ckeditor
         v-model="editorData"
         :config="editorConfig"
+        editor-url="/themes/contrib/wb_universe/ckeditor/ckeditor.js"
         @input="input"
         @namespaceloaded="onNamespaceLoaded"
       ></ckeditor>
@@ -21,7 +32,6 @@
     </ValidationProvider>
   </div>
 </template>
-
 <script>
 import CKEditor from "ckeditor4-vue";
 import { ValidationProvider } from "vee-validate";
@@ -153,7 +163,7 @@ export default {
   computed: {
     editorConfig() {
       var extraPlugins =
-        "codesnippet,print,format,font,colorbutton,justify,image,filebrowser,stylesheetparser";
+        "codesnippet, print,format,font,colorbutton,justify,image,filebrowser,stylesheetparser";
       return {
         extraPlugins: extraPlugins,
         ...this.preEditorConfig,
@@ -202,7 +212,7 @@ export default {
     onNamespaceLoaded(CKEDITOR) {
       CKEDITOR.config.allowedContent = true;
       // CKEDITOR.config.contentsCss =
-      //   "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css";
+      // "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css";
       CKEDITOR.config.htmlEncodeOutput = false;
       CKEDITOR.config.entities = false;
       // CKEDITOR.config.entities_processNumerical = 'force';

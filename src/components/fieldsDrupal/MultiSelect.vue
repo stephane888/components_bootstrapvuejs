@@ -8,16 +8,18 @@
       :field="field"
       :model="model"
       :namespace-store="namespaceStore"
+      :parent-name="parentName"
     >
     </MultiSelectTaxo>
     <MultiSelectEntities
-      v-if="
+      v-else-if="
         field.definition_settings &&
         field.definition_settings.target_type != 'taxonomy_term'
       "
       :field="field"
       :model="model"
       :namespace-store="namespaceStore"
+      :parent-name="parentName"
     >
     </MultiSelectEntities>
   </div>
@@ -40,6 +42,10 @@ export default {
     field: { type: Object, required: true },
     model: { type: [Object, Array], required: true },
     namespaceStore: { type: String, required: true },
+    parentName: {
+      type: String,
+      required: true,
+    },
   },
 };
 </script>

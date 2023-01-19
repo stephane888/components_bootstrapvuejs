@@ -17,7 +17,7 @@
       </span>
     </div>
     <div class="add-item-form">
-      <ValidationProvider :name="field.name" :rules="getRules()" v-slot="v">
+      <ValidationProvider v-slot="v" :name="field.name" :rules="getRules()">
         <b-form-group :label="settings.label_target_id">
           <div class="autocomplete">
             <multiselect
@@ -28,19 +28,23 @@
               label="text"
               track-by="text"
               :show-no-results="false"
-              :showLabels="false"
+              :show-labels="false"
               :loading="isLoading"
               @search-change="asyncFind"
               @select="selectUser"
             >
               <template slot="noResult">
-                <span class="option__titl d-none"> Aucun contenu </span>
+                <span class="option__title">
+                  Aucun contenu ne correspond à votre recherche
+                </span>
               </template>
               <template slot="placeholder">
-                <span class="option__title"> Le terme n'existe pas </span>
+                <span class="option__title"> Aucun contenu ... </span>
               </template>
               <template slot="noOptions">
-                <span class="option__title"> Saisir un terme </span>
+                <span class="option__title">
+                  Saisir un ou plusieurs caractères ...
+                </span>
               </template>
             </multiselect>
             <div class="text-danger">
