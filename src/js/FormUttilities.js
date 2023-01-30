@@ -11,29 +11,31 @@ export default {
    * @returns
    */
   generateFields(entities, allFields = [], container_entity = "simple_card") {
-    entities.forEach((entity) => {
-      if (entity.form_sort.length) {
-        const fields = [];
-        entity.form_sort.forEach((field) => {
-          const sf = {
-            template: loadField.getField(field),
-            field: field,
-            model: entity.entity,
-            entities: [],
-          };
-          if (entity.entities && entity.entities[field.name]) {
-            sf.entities = entity.entities[field.name];
-          }
-          fields.push(sf);
-        });
-        allFields.push({
-          template: loadField.getContainer(container_entity),
-          fields: fields,
-          entity: entity,
-        });
-      }
+    return new Promise((resolv) => {
+      entities.forEach((entity) => {
+        if (entity.form_sort && entity.form_sort.length) {
+          const fields = [];
+          entity.form_sort.forEach((field) => {
+            const sf = {
+              template: loadField.getField(field),
+              field: field,
+              model: entity.entity,
+              entities: [],
+            };
+            if (entity.entities && entity.entities[field.name]) {
+              sf.entities = entity.entities[field.name];
+            }
+            fields.push(sf);
+          });
+          allFields.push({
+            template: loadField.getContainer(container_entity),
+            fields: fields,
+            entity: entity,
+          });
+        }
+      });
+      resolv(allFields);
     });
-    return allFields;
   },
   getNumberEntities(entityDuplicate) {
     return new Promise((resolv) => {
@@ -92,29 +94,31 @@ export default {
                 items[i].entity,
                 keys,
                 0
-              ).then((entity) => {
-                store
-                  .dispatch("saveEntity", {
-                    entity_type_id: items[i].target_type,
-                    value: updateDomainId(entity),
-                    index: i,
-                  })
-                  .then((resp) => {
-                    suivers.creates++;
-                    values.push({ target_id: resp.data.id });
-                    i = i + 1;
-                    if (i < items.length) {
-                      // loopEntityPromise(items, i).then((resp) => {
-                      //   values.push({ target_id: resp.data.id });
-                      // });
-                      resolv(loopItem(items, i, values));
-                    } else resolv(values);
-                  })
-                  .catch((er) => {
-                    console.log(" catch : ", er);
-                    reject(er);
-                  });
-              });
+              )
+                .then((entity) => {
+                  store
+                    .dispatch("saveEntity", {
+                      entity_type_id: items[i].target_type,
+                      value: updateDomainId(entity),
+                      index: i,
+                    })
+                    .then((resp) => {
+                      suivers.creates++;
+                      values.push({ target_id: resp.data.id });
+                      i = i + 1;
+                      if (i < items.length) {
+                        resolv(loopItem(items, i, values));
+                      } else resolv(values);
+                    })
+                    .catch((er) => {
+                      console.log(" catch loopItem : ", er);
+                      reject(er);
+                    });
+                })
+                .catch((er) => {
+                  console.log(" catch loopItem : ", er);
+                  reject(er);
+                });
             } else {
               store
                 .dispatch("saveEntity", {
@@ -133,7 +137,7 @@ export default {
                   }
                 })
                 .catch((er) => {
-                  console.log("catch : ", er);
+                  console.log("catch loopItem : ", er);
                   reject(er);
                 });
             }
@@ -152,23 +156,28 @@ export default {
        * @return {Object} entity // l'entité parente MAJ.
        */
       const loopFieldEntity = (datas, fieldname, entity, keys, i) => {
-        return new Promise((resolv) => {
+        return new Promise((resolv, reject) => {
           console.log(" loopFieldEntity : ", datas);
           // Si le champs contient des données,
           // on parcourt chacune des entrées.
           if (datas[fieldname] && datas[fieldname].length > 0) {
             // Pour chaque champs, on cree les contenus et on recupere les ids.
-            loopItem(datas[fieldname], 0).then((resp) => {
-              console.log("loopFieldEntity result of loopItem : ", resp);
-              entity[fieldname] = resp;
-              // on passe au champs suivant.
-              i = i + 1;
-              if (keys.length > i) {
-                resolv(loopFieldEntity(datas, keys[i], entity, keys, i));
-              } else {
-                resolv(entity);
-              }
-            });
+            loopItem(datas[fieldname], 0)
+              .then((resp) => {
+                console.log("loopFieldEntity result of loopItem : ", resp);
+                entity[fieldname] = resp;
+                // on passe au champs suivant.
+                i = i + 1;
+                if (keys.length > i) {
+                  resolv(loopFieldEntity(datas, keys[i], entity, keys, i));
+                } else {
+                  resolv(entity);
+                }
+              })
+              .catch((er) => {
+                console.log("catch loopFieldEntity : ", er);
+                reject(er);
+              });
           } else resolv(entity);
         });
       };
@@ -195,31 +204,36 @@ export default {
                 datas[i].entity,
                 keys,
                 0
-              ).then((entity) => {
-                console.log(
-                  " loopEntityPromise SEND with override entity : ",
-                  entity
-                );
-                store
-                  .dispatch("saveEntity", {
-                    entity_type_id: datas[i].target_type,
-                    value: updateDomainId(entity),
-                    index: i,
-                  })
-                  .then((resp) => {
-                    suivers.creates++;
-                    values.push(resp.data.json);
-                    // datas[i].entity = resp.data.json;
-                    i = i + 1;
-                    if (i < datas.length) {
-                      resolv(loopEntityPromise(datas, i));
-                    } else resolv(values);
-                  })
-                  .catch((er) => {
-                    console.log("catch : ", er);
-                    reject(er);
-                  });
-              });
+              )
+                .then((entity) => {
+                  console.log(
+                    " loopEntityPromise SEND with override entity : ",
+                    entity
+                  );
+                  store
+                    .dispatch("saveEntity", {
+                      entity_type_id: datas[i].target_type,
+                      value: updateDomainId(entity),
+                      index: i,
+                    })
+                    .then((resp) => {
+                      suivers.creates++;
+                      values.push(resp.data.json);
+                      // datas[i].entity = resp.data.json;
+                      i = i + 1;
+                      if (i < datas.length) {
+                        resolv(loopEntityPromise(datas, i));
+                      } else resolv(values);
+                    })
+                    .catch((er) => {
+                      console.log("catch loopEntityPromise : ", er);
+                      reject(er);
+                    });
+                })
+                .catch((er) => {
+                  console.log("catch loopEntityPromise : ", er);
+                  reject(er);
+                });
             }
             // S'il ne contient pas de sous entité.
             else {
@@ -238,7 +252,7 @@ export default {
                   } else resolv(values);
                 })
                 .catch((er) => {
-                  console.log("catch : ", er);
+                  console.log("catch loopEntityPromise : ", er);
                   reject(er);
                 });
             }

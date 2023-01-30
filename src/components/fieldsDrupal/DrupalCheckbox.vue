@@ -1,5 +1,12 @@
+<!--
+On ajoute type-field-render et type-field-drupal car on a bc de mal a ce retrouver sur le rendu html.
+-->
 <template>
-  <div :class="classCss" field="drupal_boolean">
+  <div
+    :class="classCss"
+    type-field-render="DrupalCheckbox"
+    :type-field-drupal="field.type"
+  >
     <div class="field-item-value">
       <ValidationProvider v-slot="v" :name="fullname" :rules="getRules()">
         <!-- cas de selection unique on/off -->

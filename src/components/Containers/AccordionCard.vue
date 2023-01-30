@@ -69,8 +69,6 @@ export default {
   },
   mounted() {
     this.$root.$on("bv::collapse::state", (collapseId, isJustShown) => {
-      console.log("collapseId:", collapseId);
-      console.log("isJustShown:", isJustShown);
       if (collapseId == this.idAcordion) this.isOpen = isJustShown;
     });
   },

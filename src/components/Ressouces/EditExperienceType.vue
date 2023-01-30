@@ -135,18 +135,12 @@
 </template>
 
 <script>
+import CKEditor from "ckeditor4-vue";
 import request from "../fieldsDrupal/loadField";
-class CreateInstance {
-  constructor(value) {
-    this.name = value;
-  }
-  getValue() {
-    return this.name;
-  }
-}
+
 export default {
-  name: "FormInput",
-  components: {},
+  name: "EditExperienceType",
+  components: { ckeditor: CKEditor.component },
   props: {
     fValue: {
       type: Object,
@@ -157,15 +151,11 @@ export default {
     },
     field: {
       type: Object,
-      require: true,
-      default: function () {
-        return {};
-      },
+      required: true,
     },
   },
   data() {
     return {
-      form: {},
       editorData: "",
       preEditorConfig: {
         codeSnippet_theme: "monokai_sublime",
@@ -261,6 +251,7 @@ export default {
           },
         },
       },
+      timer: null,
     };
   },
   computed: {
@@ -308,10 +299,30 @@ export default {
         }
       },
     },
+    form: {
+      get() {
+        return this.fValue;
+      },
+      /**
+       * Peut etre un bug, mais le computed ne vois pas les modifications au niveaux des cles des objets.
+       */
+      set() {},
+    },
   },
-  mounted() {
-    const v = new CreateInstance(this.fValue);
-    this.form = v.getValue();
+  /**
+   * il emet un premier commit qui n'est pas ne cessaire, mais on a pas une autre approche.
+   */
+  watch: {
+    form: {
+      handler: function (val) {
+        console.log("MAJ des sous entites :", val);
+        clearTimeout(this.timer);
+        this.timer = setTimeout(() => {
+          this.$emit("updateValue");
+        }, request.timeToWait);
+      },
+      deep: true,
+    },
   },
   methods: {
     input(v) {

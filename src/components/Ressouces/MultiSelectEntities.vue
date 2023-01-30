@@ -3,7 +3,7 @@
     <b-form-group :label="field.label" :description="field.description">
       <div class="autocomplete">
         <multiselect
-          v-model="value_select"
+          v-model="value_computed"
           :options="options"
           :custom-label="nameWithLang"
           placeholder=""
@@ -37,7 +37,6 @@
         </div>
       </div>
     </b-form-group>
-    <pre> field : {{ field }} </pre>
   </ValidationProvider>
 </template>
 
@@ -79,26 +78,39 @@ export default {
         return false;
       }
     },
-  },
-  watch: {
     /**
-     * L'objectif est que cette valeur soit un reflet de la valeur contenu dans l'entité.
-     * @param {*} val
+     * @see https://skirtles-code.github.io/vue-examples/patterns/computed-v-model.html
      */
-    value_select(val) {
-      if (this.cardinality) {
-        const vals = [];
-        val.forEach((item) => {
-          vals.push({ target_id: item.value });
-        });
-        this.setValue(vals);
-      } else {
-        const vals = [];
-        vals.push({ target_id: val.value });
-        this.setValue(vals);
-      }
+    value_computed: {
+      get() {
+        return this.value_select;
+      },
+      set(val) {
+        this.updateValue(val);
+      },
     },
   },
+  // watch: {
+  //   /**
+  //    * L'objectif est que cette valeur soit un reflet de la valeur contenu dans l'entité.
+  //    * ( il ya un probleme avec le watch, des que la valeur change, il envoit les données,
+  //    *  ce qui est faux, c'est unqiuement à la modification de l'utilisateur ).
+  //    * @param {*} val
+  //    */
+  //   // value_select(val) {
+  //   //   if (this.cardinality) {
+  //   //     const vals = [];
+  //   //     val.forEach((item) => {
+  //   //       vals.push({ target_id: item.value });
+  //   //     });
+  //   //     this.setValue(vals);
+  //   //   } else {
+  //   //     const vals = [];
+  //   //     vals.push({ target_id: val.value });
+  //   //     this.setValue(vals);
+  //   //   }
+  //   // },
+  // },
   mounted() {
     this.loadDefaults();
   },
@@ -217,6 +229,22 @@ export default {
      */
     getRules() {
       return loadField.getRules(this.field);
+    },
+    updateValue(val) {
+      //met à jour la valeur de value_computed
+      this.value_select = val;
+      if (this.cardinality) {
+        const vals = [];
+        if (val && val.length)
+          val.forEach((item) => {
+            vals.push({ target_id: item.value });
+          });
+        this.setValue(vals);
+      } else {
+        const vals = [];
+        if (val && val.value) vals.push({ target_id: val.value });
+        this.setValue(vals);
+      }
     },
   },
 };

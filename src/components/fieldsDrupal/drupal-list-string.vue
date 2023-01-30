@@ -1,5 +1,12 @@
+<!--
+On ajoute type-field-render et type-field-drupal car on a bc de mal a ce retrouver sur le rendu html.
+-->
 <template>
-  <div :class="class_css">
+  <div
+    :class="class_css"
+    type-field-render="DrupalListString"
+    :type-field-drupal="field.type"
+  >
     <div class="field-item-value js-form-type-checkbox">
       <ValidationProvider :name="field.name" :rules="getRules()" v-slot="v">
         <b-form-group :label="field.label">

@@ -23,7 +23,7 @@
 import itemsEntity from "drupal-vuejs/src/App/jsonApi/itemsEntity.js";
 import loadField from "../fieldsDrupal/loadField.js";
 export default {
-  name: "OptionsTaxonomy",
+  name: "OptionsEntities",
   components: {},
   props: {
     field: { type: Object, required: true },
@@ -76,7 +76,7 @@ export default {
     input(val) {
       const vals = [];
       vals.push({ target_id: val });
-      this.$emit(" setValue", vals);
+      this.$emit("setValue", vals);
     },
     /**
      * --

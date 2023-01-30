@@ -1,16 +1,19 @@
+<!--
+Remplir la date par defaut avec vuejs n'est pas efficace et peux entrainer de mauvaise données.
+-->
 <template>
   <div :class="classCss">
     <ValidationProvider :name="fullname" :rules="getRules()" v-slot="v">
       <label for="input-date-fin">
         {{ field.label }}
       </label>
-      <b-row>
+      <b-row class="date-range">
         <b-col md="6">
           <b-input-group>
             <b-form-datepicker
               v-model="date.value"
               type="text"
-              placeholder="Date de début"
+              placeholder="Selectionner une date"
               required
               locale="fr"
               :date-format-options="{
@@ -21,13 +24,14 @@
               @input="date_change_debut"
             ></b-form-datepicker>
             <b-form-input
+              v-if="field.type != 'datetime_default'"
               :id="'b-' + idHtml"
               v-model="date.hour_begin"
               type="text"
               placeholder="HH:mm:ss"
               class="input-time"
             ></b-form-input>
-            <b-input-group-append>
+            <b-input-group-append v-if="field.type != 'datetime_default'">
               <b-form-timepicker
                 v-model="date.hour_begin"
                 button-only
@@ -44,7 +48,7 @@
             <b-form-datepicker
               v-model="date.end_value"
               type="text"
-              placeholder="Date de fin"
+              placeholder="Selectionner une date"
               required
               locale="fr"
               :date-format-options="{
@@ -176,7 +180,10 @@ export default {
           val["hour_end"] = D_f.hour;
         }
         return val;
-      } else return this.currentDate();
+      } else
+        return { value: null, end_value: null, hour_begin: "", hour_end: "" };
+      // pas necessaire ( car entrainne des mauvaise données )
+      //else return this.currentDate();
     },
     /**
      *
@@ -193,7 +200,7 @@ export default {
       };
     },
     /**
-     *
+     * @deprecated
      */
     currentDate() {
       const date = new Date();
@@ -215,7 +222,6 @@ export default {
      *
      */
     date_change_debut() {
-      console.log(" date_change_debut : ", this.date);
       const vals = [];
       if (this.date.value) {
         const dateDebut = new Date(
@@ -236,8 +242,11 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.input-time {
-  width: 100%;
-  max-width: 85px;
+.date-range {
+  .input-time {
+    width: 100%;
+    max-width: 85px;
+    padding-right: 0.5rem;
+  }
 }
 </style>

@@ -86,7 +86,7 @@ class CreateInstance {
   }
 }
 export default {
-  name: "MultiSelect",
+  name: "EditValueNiveau",
   components: {
     ValidationProvider,
     Multiselect,

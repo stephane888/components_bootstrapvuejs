@@ -3,7 +3,7 @@
     <h4 v-show="!showFormEdit">{{ field.label }}</h4>
     <div v-show="!showFormEdit" :id="idHtml" class="pb-3 field-mutiple">
       <div
-        v-for="(val, k) in model[field.name]"
+        v-for="(val, k) in value_computed"
         :key="k"
         class="field-item-value mb-4"
       >
@@ -139,11 +139,28 @@ export default {
        */
       terms: {},
       sortable: null,
+      timer: null,
     };
   },
   computed: {
     event_name() {
       return "drap-drop-html5" + this.idHtml;
+    },
+    value_computed: {
+      get() {
+        return this.model[this.field.name];
+      },
+      /**
+       * Peut etre un bug, mais le computed ne vois pas les modifications au niveaux des cles des objets.
+       */
+      set() {},
+    },
+    cardinality() {
+      if (this.field.cardinality === -1) {
+        return true;
+      } else {
+        return false;
+      }
     },
   },
   watch: {
@@ -164,12 +181,14 @@ export default {
   },
   methods: {
     add() {
-      this.$emit("addNewValue", defaultValue());
+      this.value_computed.push(defaultValue());
       this.destroyedSortable();
+      // On edite directement cette valeur.
+      this.Edit(this.value_computed[this.value_computed.length - 1]);
     },
     //
     removeField(index) {
-      this.$emit("removeField", index);
+      this.value_computed.splice(index, 1);
     },
     Edit(value) {
       this.currentEditValue = value;
@@ -245,7 +264,10 @@ export default {
         this.event_name,
         (even) => {
           if (even.detail) {
-            this.$emit("array_move", even.detail);
+            clearTimeout(this.timer);
+            this.timer = setTimeout(() => {
+              this.array_move(even.detail);
+            }, 150);
           }
         },
         false
@@ -265,6 +287,30 @@ export default {
         );
         this.sortable.sortable();
       }
+    },
+    updateValue() {
+      if (this.cardinality) {
+        this.setValue(this.value_computed);
+      } else {
+        let vals = this.value_computed;
+        if (vals[0]) vals = this.value_computed[0];
+        this.setValue(vals);
+      }
+    },
+    /**
+     * Ne fonctionne pas assez bien.
+     * @param {*} evt
+     */
+    array_move(evt) {
+      const moveItem = (arr, fromIndex, toIndex) => {
+        let itemRemoved = arr.splice(fromIndex, 1); // assign the removed item as an array
+        arr.splice(toIndex, 0, itemRemoved[0]); // insert itemRemoved into the target index
+        return arr;
+      };
+      const vals = moveItem(this.value_computed, evt.oldIndex, evt.newIndex);
+      console.log(" vals : ", vals);
+      //
+      this.updateValue();
     },
   },
 };

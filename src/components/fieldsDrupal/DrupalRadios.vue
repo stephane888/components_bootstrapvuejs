@@ -1,5 +1,12 @@
+<!--
+On ajoute type-field-render et type-field-drupal car on a bc de mal a ce retrouver sur le rendu html.
+-->
 <template>
-  <div :class="classCss" field="drupal_boolean">
+  <div
+    :class="classCss"
+    type-field-render="DrupalRadios"
+    :type-field-drupal="field.type"
+  >
     <div class="field-item-value js-form-type-radio" :format_val="format_val">
       <ValidationProvider :name="fullname" :rules="getRules()" v-slot="v">
         <!-- On a different cas de figure-->
@@ -168,7 +175,6 @@ export default {
         });
     },
     setValue(vals) {
-      console.log(" setValue : ", this.fullname);
       if (this.namespaceStore) {
         this.$store.dispatch(this.namespaceStore + "/setValue", {
           value: vals,

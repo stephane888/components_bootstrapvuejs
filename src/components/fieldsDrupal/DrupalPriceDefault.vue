@@ -113,6 +113,7 @@ export default {
     },
     input(v) {
       const vals = [];
+      v = v.replace(",", ".");
       vals.push({ number: v, currency_code: "EUR" });
       this.setValue(vals);
     },

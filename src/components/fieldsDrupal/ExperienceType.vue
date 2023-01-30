@@ -3,7 +3,7 @@
     <h4 v-show="!showFormEdit">{{ field.label }}</h4>
     <div v-show="!showFormEdit" :id="idHtml" class="pb-3 field-mutiple">
       <div
-        v-for="(val, k) in model[field.name]"
+        v-for="(val, k) in value_computed"
         :key="k"
         class="field-item-value mb-4 item"
       >
@@ -80,6 +80,7 @@
       :f-value="currentEditValue"
       :field="field"
       @closeEditForm="closeEditForm"
+      @updateValue="updateValue"
     ></EditExperienceType>
   </div>
 </template>
@@ -117,6 +118,7 @@ export default {
     },
     field: { type: Object, required: true },
     model: { type: [Object, Array], required: true },
+    namespaceStore: { type: String, required: true },
     parentName: {
       type: String,
       required: true,
@@ -128,6 +130,7 @@ export default {
       currentEditValue: {},
       showFormEdit: false,
       sortable: null,
+      timer: null,
     };
   },
   computed: {
@@ -137,8 +140,25 @@ export default {
     fullname() {
       return this.parentName + this.field.name;
     },
+    cardinality() {
+      if (this.field.cardinality === -1) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+    value_computed: {
+      get() {
+        return this.model[this.field.name];
+      },
+      /**
+       * Peut etre un bug, mais le computed ne vois pas les modifications au niveaux des cles des objets.
+       */
+      set() {},
+    },
   },
   watch: {
+    // pour faire le sort.
     model: {
       handler: function () {
         this.destroyedSortable();
@@ -154,20 +174,15 @@ export default {
     this.drap_drop_event();
   },
   methods: {
-    input(v) {
-      const vals = [];
-      vals.push({ value: v });
-      // this.setValue(vals);
-    },
-    //
     add() {
-      this.$emit("addNewValue", defaultValue());
+      this.value_computed.push(defaultValue());
       this.destroyedSortable();
+      // On edite directement cette valeur.
+      this.Edit(this.value_computed[this.value_computed.length - 1]);
     },
     //
     removeField(index) {
-      console.log("removeField in fields : ", index);
-      this.$emit("removeField", index);
+      this.value_computed.splice(index, 1);
     },
     Edit(value) {
       this.currentEditValue = value;
@@ -181,18 +196,27 @@ export default {
         this.event_name,
         (even) => {
           if (even.detail) {
-            this.$emit("array_move", even.detail);
+            clearTimeout(this.timer);
+            this.timer = setTimeout(() => {
+              this.array_move(even.detail);
+            }, 150);
           }
         },
         false
       );
     },
+    /**
+     * --
+     */
     destroyedSortable() {
       if (this.sortable) {
         this.sortable.destroyed();
         this.sortable = null;
       }
     },
+    /**
+     * --
+     */
     initSortable() {
       if (!this.sortable) {
         this.sortable = new DrapDropHtml5(
@@ -214,6 +238,42 @@ export default {
         date_string += date.getFullYear();
         return date_string;
       } else return;
+    },
+    setValue(vals) {
+      if (this.namespaceStore) {
+        this.$store.dispatch(this.namespaceStore + "/setValue", {
+          value: vals,
+          fieldName: this.fullname,
+        });
+      } else
+        this.$store.dispatch("setValue", {
+          value: vals,
+          fieldName: this.fullname,
+        });
+    },
+    updateValue() {
+      if (this.cardinality) {
+        this.setValue(this.value_computed);
+      } else {
+        let vals = this.value_computed;
+        if (vals[0]) vals = this.value_computed[0];
+        this.setValue(vals);
+      }
+    },
+    /**
+     * Ne fonctionne pas assez bien.
+     * @param {*} evt
+     */
+    array_move(evt) {
+      const moveItem = (arr, fromIndex, toIndex) => {
+        let itemRemoved = arr.splice(fromIndex, 1); // assign the removed item as an array
+        arr.splice(toIndex, 0, itemRemoved[0]); // insert itemRemoved into the target index
+        return arr;
+      };
+      const vals = moveItem(this.value_computed, evt.oldIndex, evt.newIndex);
+      console.log(" vals : ", vals);
+      //
+      this.updateValue();
     },
   },
 };

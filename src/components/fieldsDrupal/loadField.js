@@ -53,6 +53,7 @@ export default {
         break;
       case "daterange_default":
       case "datetime_timestamp":
+      case "datetime_default":
         template = DateRange;
         break;
       case "color_theme_field_type":
