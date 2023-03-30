@@ -20,12 +20,18 @@ import CreationSitevirtuelComplexinline from "./CreationSitevirtuelComplexinline
 import DrupalPriseDefault from "./DrupalPriceDefault.vue";
 import PhysicalDimensionsDefault from "./PhysicalDimensionsDefault.vue";
 import StockLevel from "./StockLevel.vue";
+import iconTextWidget from "./IconTextWidget.vue";
+import chartWidgetType from "./ChartWidgetType.vue";
+import TexTarea from "./TexTarea.vue";
+import MoreFieldsIconwTextidget from "./MoreFieldsIconwTextidget.vue";
 
 // load Container
 import NoContainer from "../Containers/NoContainer.vue";
 import SimpleCard from "../Containers/SimpleCard.vue";
 import AccordionCard from "../Containers/AccordionCard.vue";
 
+// import style
+import "../../assets/scss/container-field.scss";
 export default {
   debug: false,
   timeToWait: 800,
@@ -112,6 +118,18 @@ export default {
       case "commerce_stock_level_simple_transaction":
         template = StockLevel;
         break;
+      case "icon_text_widget":
+        template = iconTextWidget;
+        break;
+      case "chart_widget_type":
+        template = chartWidgetType;
+        break;
+      case "string_textarea":
+        template = TexTarea;
+        break;
+      case "more_fields_icon_text_widget":
+        template = MoreFieldsIconwTextidget;
+        break;
       default:
         console.log(" Champs sans rendu : ", key, "\n field : ", field);
         break;
@@ -119,7 +137,7 @@ export default {
     return template;
   },
   getImageUrl(fid, style = "medium") {
-    return this.config.get("/vuejs-entity/image/" + fid + "/" + style);
+    return this.config.get("/filesmanager/image/" + fid + "/" + style);
   },
   getRules(field) {
     const rules = {};

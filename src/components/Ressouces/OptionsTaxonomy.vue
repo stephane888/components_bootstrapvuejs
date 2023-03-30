@@ -30,6 +30,7 @@ export default {
   },
   mounted() {
     this.loadTerms();
+    this.selected = this.getValue();
   },
   methods: {
     loadTerms() {
@@ -50,6 +51,14 @@ export default {
           keys[0]
         ];
       } else return null;
+    },
+    getValue() {
+      if (
+        this.model[this.field.name] &&
+        this.model[this.field.name][0] &&
+        this.model[this.field.name][0].target_id
+      )
+        return this.model[this.field.name][0].target_id;
     },
     input(val) {
       const vals = [];

@@ -109,7 +109,7 @@ const defaultValue = () => {
   };
 };
 export default {
-  name: "MultiSelect",
+  name: "ValueNiveau",
   components: {
     EditValueNiveau,
   },
@@ -210,15 +210,8 @@ export default {
       }
     },
     getFistVocab() {
-      if (this.field.definition_settings.handler_settings.target_bundles) {
-        const keys = Object.keys(
-          this.field.definition_settings.handler_settings.target_bundles
-        );
-        return this.field.definition_settings.handler_settings.target_bundles[
-          keys[0]
-        ];
-      } else if (this.field.definition_settings.target_type) {
-        return this.field.definition_settings.target_type;
+      if (this.field.settings.target_bundles) {
+        return this.field.settings.target_bundles;
       } else return null;
     },
     addTermsInCache(vals) {

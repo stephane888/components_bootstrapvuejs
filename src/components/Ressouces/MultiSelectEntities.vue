@@ -120,7 +120,6 @@ export default {
      * @param {*} tid
      */
     getTermById(tid) {
-      // Doit etre dynamique.
       let entity_type_id = this.getFistVocab();
       if (entity_type_id && loadField.config) {
         const terms = new itemsEntity(
@@ -133,9 +132,9 @@ export default {
           .getValueById(tid)
           .then(() => {
             const options = terms.getOptions();
-            this.options = options;
+            this.options.push(options[0]);
             if (this.cardinality) {
-              this.value_select = options;
+              this.value_select.push(options[0]);
             } else if (options[0]) this.value_select = options[0];
             this.isLoading = false;
           })
@@ -148,6 +147,7 @@ export default {
      *
      */
     loadDefaults() {
+      this.value_select = [];
       this.model[this.field.name].forEach((item) => {
         this.getTermById(item.target_id);
       });

@@ -153,15 +153,15 @@ export default {
     },
   },
   mounted() {
-    this.getImage();
-    this.selected = this.getValue();
-    this.multi_selected = this.getValues();
     if (
       this.field.definition_settings &&
       this.field.definition_settings.target_type
     ) {
       this.key_value = "target_id";
     } else this.key_value = "value";
+    this.getImage();
+    this.selected = this.getValue();
+    this.multi_selected = this.getValues();
   },
 
   methods: {
@@ -191,7 +191,20 @@ export default {
       return value;
     },
     getValues() {
-      return [];
+      const values = [];
+      if (this.model[this.field.name] && this.model[this.field.name].length) {
+        this.model[this.field.name].forEach((item) => {
+          // console.log(
+          //   "item : " + this.field.name,
+          //   " : ",
+          //   item,
+          //   "\n this.key_value ",
+          //   this.key_value
+          // );
+          values.push(item[this.key_value]);
+        });
+      }
+      return values;
     },
     setValue(vals) {
       if (this.namespaceStore) {

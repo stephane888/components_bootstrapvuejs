@@ -167,7 +167,12 @@ export default {
      *
      */
     getValue() {
-      if (this.model[this.field.name] && this.model[this.field.name][0]) {
+      console.log("date range : ", this.model[this.field.name]);
+      if (
+        this.model[this.field.name] &&
+        this.model[this.field.name][0] &&
+        this.model[this.field.name][0].value
+      ) {
         const D_b = this.getDateFromDateTimeStamp(
           this.model[this.field.name][0].value
         );

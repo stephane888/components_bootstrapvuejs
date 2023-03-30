@@ -1,0 +1,26 @@
+.container-field {
+  .header {
+    label {
+      font-size: 125%;
+      font-weight: bolder;
+    }
+  }
+  .field-item-value {
+    position: relative;
+    border-top: 1px solid #ccc;
+    label,
+    legend {
+      font-size: 95%;
+    }
+    .elt-remove {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      left: auto;
+      bottom: auto;
+    }
+    &:first-child {
+      border: none;
+    }
+  }
+}

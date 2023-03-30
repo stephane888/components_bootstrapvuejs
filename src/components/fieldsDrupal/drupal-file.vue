@@ -8,7 +8,7 @@
           placeholder="Ajouter un fichier ..."
           drop-placeholder="Drop file here..."
           :multiple="cardinality"
-          accept=".jpg, .png, .gif, webp"
+          :accept="file_extensions"
           size="md"
           :state="getValidationState(v)"
           :name="fullname"
@@ -45,7 +45,7 @@ import { ValidationProvider } from "vee-validate";
 import "./vee-validation-rules";
 
 export default {
-  name: "UploaderFile",
+  name: "DrupalFile",
   components: {
     ValidationProvider,
   },
@@ -83,6 +83,23 @@ export default {
     },
     fullname() {
       return this.parentName + this.field.name;
+    },
+    file_extensions() {
+      if (
+        this.field.definition_settings &&
+        this.field.definition_settings.file_extensions
+      ) {
+        var extensions = "";
+        this.field.definition_settings.file_extensions
+          .split(" ")
+          .forEach((item) => {
+            extensions += ".";
+            extensions += item.trim();
+            extensions += ", ";
+          });
+        extensions.trim();
+        return extensions;
+      } else return "";
     },
   },
   mounted() {

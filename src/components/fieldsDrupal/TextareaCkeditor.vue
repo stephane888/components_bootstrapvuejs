@@ -20,7 +20,9 @@
       <ckeditor
         v-model="editorData"
         :config="editorConfig"
-        editor-url="/themes/contrib/wb_universe/ckeditor/ckeditor.js"
+        :editor-url="
+          baseUrl + '/themes/contrib/wb_universe/ckeditor/ckeditor.js'
+        "
         @input="input"
         @namespaceloaded="onNamespaceLoaded"
       ></ckeditor>
@@ -65,13 +67,24 @@ export default {
       preEditorConfig: {
         codeSnippet_theme: "monokai_sublime",
         stylesSet: [],
+        // toolbars configs => https://ckeditor.com/latest/samples/toolbarconfigurator/#advanced
         toolbar: [
           {
             name: "document",
             items: [
-              "Bold",
-              "Italic",
+              "Source",
               "-",
+              "Save",
+              "NewPage",
+              "Preview",
+              "Print",
+              "-",
+              "Templates",
+            ],
+          },
+          {
+            name: "clipboard",
+            items: [
               "Cut",
               "Copy",
               "Paste",
@@ -82,6 +95,80 @@ export default {
               "Redo",
             ],
           },
+          // {
+          //   name: "editing",
+          //   items: ["Find", "Replace", "-", "SelectAll", "-", "Scayt"],
+          // },
+          // {
+          //   name: "forms",
+          //   items: [
+          //     "Form",
+          //     "Checkbox",
+          //     "Radio",
+          //     "TextField",
+          //     "Textarea",
+          //     "Select",
+          //     "Button",
+          //     "ImageButton",
+          //     "HiddenField",
+          //   ],
+          // },
+          //"/",
+          {
+            name: "basicstyles",
+            items: [
+              "Bold",
+              "Italic",
+              "Underline",
+              "Strike",
+              "Subscript",
+              "Superscript",
+              "-",
+              "CopyFormatting",
+              "RemoveFormat",
+            ],
+          },
+          {
+            name: "paragraph",
+            items: [
+              "NumberedList",
+              "BulletedList",
+              "-",
+              "Outdent",
+              "Indent",
+              "-",
+              "Blockquote",
+              "CreateDiv",
+              "-",
+              "JustifyLeft",
+              "JustifyCenter",
+              "JustifyRight",
+              "JustifyBlock",
+              "-",
+              "BidiLtr",
+              "BidiRtl",
+              "Language",
+            ],
+          },
+          { name: "links", items: ["Link", "Unlink", "Anchor"] },
+          {
+            name: "insert",
+            items: [
+              "Image",
+              "Flash",
+              "Table",
+              "HorizontalRule",
+              "Smiley",
+              "SpecialChar",
+              "PageBreak",
+              "Iframe",
+            ],
+          },
+          "/",
+          { name: "styles", items: ["Styles", "Format", "Font", "FontSize"] },
+          { name: "colors", items: ["TextColor", "BGColor"] },
+          { name: "tools", items: ["Maximize", "ShowBlocks"] },
+          { name: "about", items: ["About"] },
         ],
         // On doit trouver un moyen de rendre cette
         // contentsCss:
@@ -171,6 +258,10 @@ export default {
     },
     fullname() {
       return this.parentName + this.field.name;
+    },
+    baseUrl() {
+      if (config.config) return config.config.getBaseUrl();
+      else return "";
     },
   },
   mounted() {

@@ -46,6 +46,13 @@ export default {
       }
       return options;
     },
+    is_target_type() {
+      if (this.field.definition_settings.target_type) return true;
+      else return false;
+    },
+  },
+  mounted() {
+    this.selected = this.getValue();
   },
   methods: {
     getFistVocab() {
@@ -60,8 +67,17 @@ export default {
     },
     input(val) {
       const vals = [];
-      vals.push({ value: val });
+      if (this.is_target_type) vals.push({ target_id: val });
+      else vals.push({ value: val });
       this.$emit("setValue", vals);
+    },
+    getValue() {
+      if (this.model[this.field.name] && this.model[this.field.name][0]) {
+        if (this.is_target_type)
+          return this.model[this.field.name][0].target_id;
+        else return this.model[this.field.name][0].value;
+      }
+      return this.model[this.field.name][0].value;
     },
   },
 };

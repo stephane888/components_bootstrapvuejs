@@ -2,8 +2,20 @@ import loadField from "../components/fieldsDrupal/loadField";
 export default {
   /**
    * Contient l'entite domaine, utile dans les cas ou l'on souhaite mettre à jour le domain.
+   * ( Entité drupal domain )
    */
   domainRegister: {},
+
+  /**
+   * Contient le dernier id sauvegardé.
+   * @Justification
+   * Dans certains cas, on a besin de recuperer cet id,
+   * mais il nya pas de guarandi que cela soit dans la proprieté 'id' du flux et cela serait un poil plus complexe.
+   * @Alert
+   * NB: la valeur retounée est valide si l'execution est strictement en serie.
+   */
+  lastIdEntity: null,
+
   /**
    * Permet de generer le formulaire drupal.
    * @param {Array} entities
@@ -58,11 +70,17 @@ export default {
   },
   /**
    * Sauvegarde toutes les données d'une matrice, et retourne les entites parentes.
-   * @param {Object} response
-   * @param {Object} suivers
+   * example param suivers :
+   * suivers: {
+   *   ...
+   *   creates: 0, // incrementé durant le process.
+   *   ...
+   * },
+   * @param {Object} datas contient les données à sauvegarder.
+   * @param {Object} suivers permet de suivre la creation
    * @return {Array} un tableau d'entité de drupal.
    */
-  prepareSaveEntities(store, response, suivers, ActionDomainId = false) {
+  prepareSaveEntities(store, datas, suivers, ActionDomainId = false) {
     return new Promise((resolu, rejecte) => {
       const updateDomainId = (entity) => {
         if (
@@ -104,6 +122,7 @@ export default {
                     })
                     .then((resp) => {
                       suivers.creates++;
+                      this.lastIdEntity = resp.data.id;
                       values.push({ target_id: resp.data.id });
                       i = i + 1;
                       if (i < items.length) {
@@ -128,6 +147,7 @@ export default {
                 })
                 .then((resp) => {
                   suivers.creates++;
+                  this.lastIdEntity = resp.data.id;
                   values.push({ target_id: resp.data.id });
                   i = i + 1;
                   if (items.length <= i) {
@@ -218,6 +238,7 @@ export default {
                     })
                     .then((resp) => {
                       suivers.creates++;
+                      this.lastIdEntity = resp.data.id;
                       values.push(resp.data.json);
                       // datas[i].entity = resp.data.json;
                       i = i + 1;
@@ -245,6 +266,7 @@ export default {
                 })
                 .then((resp) => {
                   suivers.creates++;
+                  this.lastIdEntity = resp.data.id;
                   values.push(resp.data.json);
                   i = i + 1;
                   if (i < datas.length) {
@@ -262,7 +284,7 @@ export default {
           }
         });
       };
-      loopEntityPromise(response, 0)
+      loopEntityPromise(datas, 0)
         .then((entities) => {
           resolu(entities);
         })

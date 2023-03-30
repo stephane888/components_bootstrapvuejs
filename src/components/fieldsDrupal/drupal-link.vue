@@ -98,14 +98,19 @@ export default {
           };
         }
         return url;
-      }
+      } else return { title: "", uri: "#" };
     },
     input() {
       const vals = [];
       clearTimeout(this.timer);
       this.timer = setTimeout(() => {
+        var r = new RegExp("^(?:[a-z+]+:)?//", "i");
+        var uri = "internal:" + this.input_value.uri;
+        if (r.test(this.input_value.uri)) {
+          uri = this.input_value.uri;
+        }
         const value = {
-          uri: "internal:" + this.input_value.uri,
+          uri: uri,
           title: this.input_value.title,
           attributes: [],
           options: [],
