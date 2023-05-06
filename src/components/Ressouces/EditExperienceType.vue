@@ -119,6 +119,7 @@
               <ckeditor
                 v-model="form.description"
                 :config="editorConfig"
+                :editor-url="editorUrl"
                 @input="input"
                 @namespaceloaded="onNamespaceLoaded"
               ></ckeditor>
@@ -137,6 +138,7 @@
 <script>
 import CKEditor from "ckeditor4-vue";
 import request from "../fieldsDrupal/loadField";
+import ckeditorConfig from "../Ressouces/ckeditor-config";
 
 export default {
   name: "EditExperienceType",
@@ -157,100 +159,8 @@ export default {
   data() {
     return {
       editorData: "",
-      preEditorConfig: {
-        codeSnippet_theme: "monokai_sublime",
-        stylesSet: [],
-        toolbar: [
-          {
-            name: "document",
-            items: [
-              "Bold",
-              "Italic",
-              "-",
-              "Cut",
-              "Copy",
-              "Paste",
-              "PasteText",
-              "PasteFromWord",
-              "-",
-              "Undo",
-              "Redo",
-            ],
-          },
-        ],
-        contentsCss:
-          "@import '" +
-          request.config.getBaseUrl() +
-          "/themes/contrib/wb_universe/node_modules/%40fortawesome/fontawesome-free/css/all.min.css'; @import 'http://wb-horizon.com/themes/custom/wb_horizon_com/css/vendor-style.css';",
-        on: {
-          instanceReady: function (ev) {
-            ev.sender.dataProcessor.writer.setRules("p", {
-              indent: true,
-              breakBeforeOpen: true,
-              breakAfterOpen: false,
-              breakBeforeClose: true,
-              breakAfterClose: true,
-            });
-            ev.sender.dataProcessor.writer.setRules("img", {
-              indent: true,
-              breakBeforeOpen: true,
-              breakAfterOpen: false,
-              breakBeforeClose: false,
-              breakAfterClose: false,
-            });
-            ev.sender.dataProcessor.writer.setRules("h1", {
-              indent: true,
-              breakBeforeOpen: false,
-              breakAfterOpen: false,
-              breakBeforeClose: false,
-              breakAfterClose: false,
-            });
-
-            ev.sender.dataProcessor.writer.setRules("h2", {
-              indent: true,
-              breakBeforeOpen: false,
-              breakAfterOpen: false,
-              breakBeforeClose: false,
-              breakAfterClose: false,
-            });
-            ev.sender.dataProcessor.writer.setRules("h3", {
-              indent: true,
-              breakBeforeOpen: false,
-              breakAfterOpen: false,
-              breakBeforeClose: false,
-              breakAfterClose: false,
-            });
-            ev.sender.dataProcessor.writer.setRules("h4", {
-              indent: true,
-              breakBeforeOpen: false,
-              breakAfterOpen: false,
-              breakBeforeClose: false,
-              breakAfterClose: false,
-            });
-            ev.sender.dataProcessor.writer.setRules("h5", {
-              indent: true,
-              breakBeforeOpen: false,
-              breakAfterOpen: false,
-              breakBeforeClose: false,
-              breakAfterClose: false,
-            });
-            ev.sender.dataProcessor.writer.setRules("h6", {
-              indent: true,
-              breakBeforeOpen: false,
-              breakAfterOpen: false,
-              breakBeforeClose: false,
-              breakAfterClose: false,
-            });
-            ev.sender.dataProcessor.writer.setRules("div", {
-              indent: true,
-              breakBeforeOpen: true,
-              breakAfterOpen: true,
-              breakBeforeClose: true,
-              breakAfterClose: false,
-            });
-          },
-        },
-      },
+      preEditorConfig: ckeditorConfig.preEditorConfig(),
+      editorUrl: ckeditorConfig.editorUrl(),
       timer: null,
     };
   },
@@ -332,15 +242,7 @@ export default {
       this.form.description = v;
     },
     onNamespaceLoaded(CKEDITOR) {
-      CKEDITOR.config.allowedContent = true;
-      // CKEDITOR.config.contentsCss =
-      //   "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css";
-      CKEDITOR.config.htmlEncodeOutput = false;
-      CKEDITOR.config.entities = false;
-      // CKEDITOR.config.entities_processNumerical = 'force';
-      CKEDITOR.dtd.$removeEmpty.span = 0;
-      CKEDITOR.dtd.$removeEmpty.i = 0;
-      CKEDITOR.dtd.$removeEmpty.label = 0;
+      ckeditorConfig.onNamespaceLoaded(CKEDITOR);
     },
   },
 };

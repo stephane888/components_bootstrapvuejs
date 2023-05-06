@@ -1,18 +1,23 @@
 <template>
   <div :class="classCss">
     <ValidationProvider v-slot="v" :name="fullname" :rules="getRules()">
-      <b-form-group :label="field.label" :description="field.description">
+      <b-form-group
+        :label="field.label"
+        :description="field.description"
+        :class="size ? 'size-' + size : ''"
+      >
         <div class="field-item-value">
           <b-form-input
             v-model="input_value"
             :placeholder="field.placeholder"
             :state="getValidationState(v)"
             :name="fullname"
+            :size="size"
             debounce="2500"
             @input="input"
           ></b-form-input>
         </div>
-        <div v-if="v.errors" class="text-danger my-2">
+        <div v-if="v.errors && v.errors.length > 0" class="text-danger my-2">
           <small v-for="(error, ii) in v.errors" :key="ii" class="d-block">
             {{ error }}
           </small>
@@ -44,6 +49,12 @@ export default {
     parentName: {
       type: String,
       required: true,
+    },
+    // permet de definir la taille du bouton,
+    // sm,md,lg
+    size: {
+      type: [String],
+      default: "sm",
     },
   },
 

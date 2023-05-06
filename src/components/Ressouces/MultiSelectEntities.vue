@@ -1,5 +1,6 @@
 <template>
   <ValidationProvider v-slot="v" :name="fullname" :rules="getRules()">
+    <div class="d-none for-test">MultiSelectEntities : {{ field.type }}</div>
     <b-form-group :label="field.label" :description="field.description">
       <div class="autocomplete">
         <multiselect
@@ -132,10 +133,12 @@ export default {
           .getValueById(tid)
           .then(() => {
             const options = terms.getOptions();
-            this.options.push(options[0]);
-            if (this.cardinality) {
-              this.value_select.push(options[0]);
-            } else if (options[0]) this.value_select = options[0];
+            if (options[0]) {
+              this.options.push(options[0]);
+              if (this.cardinality) {
+                this.value_select.push(options[0]);
+              } else if (options[0]) this.value_select = options[0];
+            }
             this.isLoading = false;
           })
           .catch(() => {

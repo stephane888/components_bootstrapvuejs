@@ -23,7 +23,9 @@ import StockLevel from "./StockLevel.vue";
 import iconTextWidget from "./IconTextWidget.vue";
 import chartWidgetType from "./ChartWidgetType.vue";
 import TexTarea from "./TexTarea.vue";
+// @deprecated will be remove before 2x. use MoreFieldsIconDescription
 import MoreFieldsIconwTextidget from "./MoreFieldsIconwTextidget.vue";
+import MoreFieldsIconDescription from "./MoreFieldsIconwDescriptionidget.vue";
 
 // load Container
 import NoContainer from "../Containers/NoContainer.vue";
@@ -127,8 +129,12 @@ export default {
       case "string_textarea":
         template = TexTarea;
         break;
+      // @deprecated will be remove before 2x. use MoreFieldsIconDescription
       case "more_fields_icon_text_widget":
         template = MoreFieldsIconwTextidget;
+        break;
+      case "more_fields_icon_text_description_widget":
+        template = MoreFieldsIconDescription;
         break;
       default:
         console.log(" Champs sans rendu : ", key, "\n field : ", field);

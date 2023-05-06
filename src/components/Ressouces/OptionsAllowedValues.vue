@@ -1,5 +1,6 @@
 <template>
   <div>
+    <div class="d-none for-test">options value : {{ field.type }}</div>
     <b-form-group :label="field.label">
       <b-form-select
         v-if="field.type == 'options_select'"
@@ -71,13 +72,16 @@ export default {
       else vals.push({ value: val });
       this.$emit("setValue", vals);
     },
+    /**
+     * Cette approche a apparament un soucis car il ne tient pas en compte le multiple value.
+     */
     getValue() {
       if (this.model[this.field.name] && this.model[this.field.name][0]) {
         if (this.is_target_type)
           return this.model[this.field.name][0].target_id;
         else return this.model[this.field.name][0].value;
       }
-      return this.model[this.field.name][0].value;
+      return null;
     },
   },
 };

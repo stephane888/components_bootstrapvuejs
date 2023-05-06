@@ -167,7 +167,7 @@ export default {
      *
      */
     getValue() {
-      console.log("date range : ", this.model[this.field.name]);
+      // console.log("date range : ", this.model[this.field.name]);
       if (
         this.model[this.field.name] &&
         this.model[this.field.name][0] &&
@@ -201,7 +201,11 @@ export default {
       return {
         date: date.getFullYear() + "-" + month + "-" + date.getDate(),
         hour:
-          date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+          ("0" + date.getHours()).slice(-2) +
+          ":" +
+          ("0" + date.getMinutes()).slice(-2) +
+          ":" +
+          ("0" + date.getSeconds()).slice(-2),
       };
     },
     /**

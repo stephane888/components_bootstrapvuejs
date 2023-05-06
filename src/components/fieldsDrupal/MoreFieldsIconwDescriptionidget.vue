@@ -1,4 +1,3 @@
-<!-- @deprecated will be remove before 2x. use MoreFieldsIconDescription -->
 <template>
   <div :class="classCss" class="container-field">
     <ValidationProvider v-slot="v" :name="fullname" :rules="getRules()">
@@ -14,12 +13,22 @@
           class="field-item-value"
         >
           <label>{{ field.settings.label_1 }}</label>
-          <b-form-input
+          <b-form-textarea
             v-model="value.value"
             :placeholder="field.placeholder"
             :state="getValidationState(v)"
             :name="fullname + '.value'"
-          ></b-form-input>
+          ></b-form-textarea>
+          <!-- 
+            https://projets.habeuk.com/#/projets/3850
+            <ckeditor
+            v-if="!select_edit_mode"
+            :value="value.value"
+            :config="editorConfig"
+            :editor-url="editorUrl"
+            @namespaceloaded="onNamespaceLoaded"
+            @change="input($event, index, 'value')"
+          ></ckeditor> -->
           <label class="mt-2">
             {{ field.settings.label_2 }}
           </label>
@@ -34,10 +43,11 @@
           ></b-form-textarea>
           <ckeditor
             v-if="!select_edit_mode"
-            v-model="value.text"
+            :value="value.text"
             :config="editorConfig"
             :editor-url="editorUrl"
             @namespaceloaded="onNamespaceLoaded"
+            @input="inputRaw($event, index, 'value')"
           ></ckeditor>
           <b-button
             v-if="cardinality"
@@ -66,19 +76,17 @@
 </template>
 
 <script>
-/**
- * @deprecated will be remove before 2x. use MoreFieldsIconDescription
- */
 import { ValidationProvider } from "vee-validate";
 import "./vee-validation-rules";
 import loadField from "./loadField";
 import ckeditorConfig from "../Ressouces/ckeditor-config";
 import CKEditor from "ckeditor4-vue";
 export default {
-  name: "MoreFieldsIconwTextidget",
+  name: "MoreFieldsIconwDescriptionidget",
   components: {
     ValidationProvider,
     ckeditor: CKEditor.component,
+    //ckeditor2: CKEditor.component,
   },
   props: {
     classCss: {
@@ -103,6 +111,7 @@ export default {
       editorConfig: ckeditorConfig.preEditorConfig(),
       editorUrl: ckeditorConfig.editorUrl(),
       select_edit_mode: true,
+      editorData: "emdf plfg",
     };
   },
   computed: {
@@ -125,6 +134,7 @@ export default {
      * Cela ne s'execute que dans le cadre d'un watch et permet de ressoudre le probleme.
      */
     field() {
+      console.log("watch : ");
       this.input_value = this.getValue();
     },
   },
@@ -164,10 +174,22 @@ export default {
         return this.model[this.field.name];
       } else return [];
     },
-    input(v) {
-      const vals = [];
-      vals.push({ value: v });
-      this.setValue(vals);
+    /**
+     * Tentative de resolution.
+     * @param {*} value
+     * @param {*} index
+     * @param {*} property
+     */
+    inputRaw(value, index, property) {
+      console.log(
+        "value :",
+        value,
+        "\n index : ",
+        index,
+        "\n property : ",
+        property
+      );
+      // this.input_value[index][property] = value;
     },
     addField() {
       const newEntry = { value: "", text: "", format: "text_html" };

@@ -1,4 +1,10 @@
 import loadField from "../components/fieldsDrupal/loadField";
+/**
+ * Les fichiers ont une limitation elle ne permet pas de recuperer plusiuers information.
+ * par example les données et le diernier id creer lorsqu'on a une execution en serie ou
+ * en paralle, il faut que chaque execution se fasse dans une instance.
+ * Donc, pour la suite on recommande l'utilisation de la class "ClassFormUtilities".
+ */
 export default {
   /**
    * Contient l'entite domaine, utile dans les cas ou l'on souhaite mettre à jour le domain.
@@ -7,14 +13,14 @@ export default {
   domainRegister: {},
 
   /**
-   * Contient le dernier id sauvegardé.
+   * Contient les derniers id de niveau 0 à etre creer.
    * @Justification
    * Dans certains cas, on a besin de recuperer cet id,
    * mais il nya pas de guarandi que cela soit dans la proprieté 'id' du flux et cela serait un poil plus complexe.
    * @Alert
    * NB: la valeur retounée est valide si l'execution est strictement en serie.
    */
-  lastIdEntity: null,
+  lastIdsEntity: [],
 
   /**
    * Permet de generer le formulaire drupal.
@@ -82,6 +88,8 @@ export default {
    */
   prepareSaveEntities(store, datas, suivers, ActionDomainId = false) {
     return new Promise((resolu, rejecte) => {
+      // on vide les derniers ids.
+      this.lastIdsEntity = [];
       const updateDomainId = (entity) => {
         if (
           ActionDomainId &&
@@ -122,7 +130,6 @@ export default {
                     })
                     .then((resp) => {
                       suivers.creates++;
-                      this.lastIdEntity = resp.data.id;
                       values.push({ target_id: resp.data.id });
                       i = i + 1;
                       if (i < items.length) {
@@ -147,7 +154,6 @@ export default {
                 })
                 .then((resp) => {
                   suivers.creates++;
-                  this.lastIdEntity = resp.data.id;
                   values.push({ target_id: resp.data.id });
                   i = i + 1;
                   if (items.length <= i) {
@@ -210,6 +216,7 @@ export default {
        * @param {*} datas
        * @param {*} i
        * @return resp [{id:..., json:...}] // return un json avec une proprieté json et une autre id.
+       * @K erreur signalé.
        */
       const loopEntityPromise = (datas, i = null, values = []) => {
         return new Promise((resolv, reject) => {
@@ -238,12 +245,12 @@ export default {
                     })
                     .then((resp) => {
                       suivers.creates++;
-                      this.lastIdEntity = resp.data.id;
+                      this.lastIdsEntity.push({ target_id: resp.data.id });
                       values.push(resp.data.json);
                       // datas[i].entity = resp.data.json;
                       i = i + 1;
                       if (i < datas.length) {
-                        resolv(loopEntityPromise(datas, i));
+                        resolv(loopEntityPromise(datas, i, values));
                       } else resolv(values);
                     })
                     .catch((er) => {
@@ -266,11 +273,11 @@ export default {
                 })
                 .then((resp) => {
                   suivers.creates++;
-                  this.lastIdEntity = resp.data.id;
+                  this.lastIdsEntity.push({ target_id: resp.data.id });
                   values.push(resp.data.json);
                   i = i + 1;
                   if (i < datas.length) {
-                    resolv(loopEntityPromise(datas, i));
+                    resolv(loopEntityPromise(datas, i, values));
                   } else resolv(values);
                 })
                 .catch((er) => {
@@ -284,6 +291,7 @@ export default {
           }
         });
       };
+
       loopEntityPromise(datas, 0)
         .then((entities) => {
           resolu(entities);

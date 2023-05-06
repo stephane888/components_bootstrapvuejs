@@ -42,7 +42,12 @@ On ajoute type-field-render et type-field-drupal car on a bc de mal a ce retrouv
           @setValue="setValue"
         >
         </OptionsEntities>
-        <b-form-group v-else :label="field.label" :name="fullname">
+        <b-form-group
+          v-else
+          :label="field.label"
+          :name="fullname"
+          :class="size ? 'size-' + size : ''"
+        >
           <div class="fieldset-wrapper">
             <div
               v-if="field.settings && field.settings.list_options"
@@ -54,6 +59,7 @@ On ajoute type-field-render et type-field-drupal car on a bc de mal a ce retrouv
                 v-model="selected"
                 :name="fullname"
                 :value="option.value"
+                :size="size"
                 class="form-check"
                 :state="getValidationState(v)"
               >
@@ -124,6 +130,12 @@ export default {
     parentName: {
       type: String,
       required: true,
+    },
+    // permet de definir la taille du bouton,
+    // sm,md,lg
+    size: {
+      type: [String],
+      default: "sm",
     },
   },
 

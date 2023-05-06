@@ -1,12 +1,5 @@
 <!--
- editor-url="https://cdn.ckeditor.com/4.20.1/standard/ckeditor.js" permet de specifier l'url externe.
- NB: Dans la mesure ou la page dispose deja de ckeditor, le module ne chargera plus le CDN, il va utiliser celui qui est present.
- Consequence, les plugins peuvent ne plus fonctionner sauf s'ils sont definie dans le nouveau plugin.
-***
- Vous pouvez egalment utiliser le plugins local qui se trouve dans /themes/contrib/wb_universe/ckeditor/ckeditor.js" via cet attributes
- editor-url="/themes/contrib/wb_universe/ckeditor/ckeditor.js".
-( pour pallier à ce probleme de ck-editor on va desactivée le module c )
-***
+
 -->
 <template>
   <div :class="classCss" class="mb-4">
@@ -17,12 +10,26 @@
       class="form-group"
     >
       <legend>{{ field.label }}</legend>
+      <div class="options-config">
+        <b-form-checkbox v-model="select_edit_mode" switch size="md">
+          Edit code (Pro)
+        </b-form-checkbox>
+      </div>
+      <b-form-textarea
+        v-if="select_edit_mode"
+        v-model="editorData"
+        :placeholder="field.placeholder"
+        :state="getValidationState(v)"
+        :name="fullname"
+        rows="3"
+        max-rows="6"
+        @input="input"
+      ></b-form-textarea>
       <ckeditor
+        v-if="!select_edit_mode"
         v-model="editorData"
         :config="editorConfig"
-        :editor-url="
-          baseUrl + '/themes/contrib/wb_universe/ckeditor/ckeditor.js'
-        "
+        :editor-url="editorUrl"
         @input="input"
         @namespaceloaded="onNamespaceLoaded"
       ></ckeditor>
@@ -39,6 +46,7 @@ import CKEditor from "ckeditor4-vue";
 import { ValidationProvider } from "vee-validate";
 import "./vee-validation-rules";
 import config from "./loadField";
+import ckeditorConfig from "../Ressouces/ckeditor-config";
 export default {
   name: "TextareaCkeditor",
   components: {
@@ -64,187 +72,10 @@ export default {
   data() {
     return {
       editorData: "",
-      preEditorConfig: {
-        codeSnippet_theme: "monokai_sublime",
-        stylesSet: [],
-        // toolbars configs => https://ckeditor.com/latest/samples/toolbarconfigurator/#advanced
-        toolbar: [
-          {
-            name: "document",
-            items: [
-              "Source",
-              "-",
-              "Save",
-              "NewPage",
-              "Preview",
-              "Print",
-              "-",
-              "Templates",
-            ],
-          },
-          {
-            name: "clipboard",
-            items: [
-              "Cut",
-              "Copy",
-              "Paste",
-              "PasteText",
-              "PasteFromWord",
-              "-",
-              "Undo",
-              "Redo",
-            ],
-          },
-          // {
-          //   name: "editing",
-          //   items: ["Find", "Replace", "-", "SelectAll", "-", "Scayt"],
-          // },
-          // {
-          //   name: "forms",
-          //   items: [
-          //     "Form",
-          //     "Checkbox",
-          //     "Radio",
-          //     "TextField",
-          //     "Textarea",
-          //     "Select",
-          //     "Button",
-          //     "ImageButton",
-          //     "HiddenField",
-          //   ],
-          // },
-          //"/",
-          {
-            name: "basicstyles",
-            items: [
-              "Bold",
-              "Italic",
-              "Underline",
-              "Strike",
-              "Subscript",
-              "Superscript",
-              "-",
-              "CopyFormatting",
-              "RemoveFormat",
-            ],
-          },
-          {
-            name: "paragraph",
-            items: [
-              "NumberedList",
-              "BulletedList",
-              "-",
-              "Outdent",
-              "Indent",
-              "-",
-              "Blockquote",
-              "CreateDiv",
-              "-",
-              "JustifyLeft",
-              "JustifyCenter",
-              "JustifyRight",
-              "JustifyBlock",
-              "-",
-              "BidiLtr",
-              "BidiRtl",
-              "Language",
-            ],
-          },
-          { name: "links", items: ["Link", "Unlink", "Anchor"] },
-          {
-            name: "insert",
-            items: [
-              "Image",
-              "Flash",
-              "Table",
-              "HorizontalRule",
-              "Smiley",
-              "SpecialChar",
-              "PageBreak",
-              "Iframe",
-            ],
-          },
-          "/",
-          { name: "styles", items: ["Styles", "Format", "Font", "FontSize"] },
-          { name: "colors", items: ["TextColor", "BGColor"] },
-          { name: "tools", items: ["Maximize", "ShowBlocks"] },
-          { name: "about", items: ["About"] },
-        ],
-        // On doit trouver un moyen de rendre cette
-        // contentsCss:
-        //   "@import '" +
-        //   config.config.getBaseUrl() +
-        //   "/themes/contrib/wb_universe/node_modules/%40fortawesome/fontawesome-free/css/all.min.css'; @import 'http://wb-horizon.com/themes/custom/wb_horizon_com/css/vendor-style.css';",
-        on: {
-          instanceReady: function (ev) {
-            ev.sender.dataProcessor.writer.setRules("p", {
-              indent: true,
-              breakBeforeOpen: true,
-              breakAfterOpen: false,
-              breakBeforeClose: true,
-              breakAfterClose: true,
-            });
-            ev.sender.dataProcessor.writer.setRules("img", {
-              indent: true,
-              breakBeforeOpen: true,
-              breakAfterOpen: false,
-              breakBeforeClose: false,
-              breakAfterClose: false,
-            });
-            ev.sender.dataProcessor.writer.setRules("h1", {
-              indent: true,
-              breakBeforeOpen: false,
-              breakAfterOpen: false,
-              breakBeforeClose: false,
-              breakAfterClose: false,
-            });
-
-            ev.sender.dataProcessor.writer.setRules("h2", {
-              indent: true,
-              breakBeforeOpen: false,
-              breakAfterOpen: false,
-              breakBeforeClose: false,
-              breakAfterClose: false,
-            });
-            ev.sender.dataProcessor.writer.setRules("h3", {
-              indent: true,
-              breakBeforeOpen: false,
-              breakAfterOpen: false,
-              breakBeforeClose: false,
-              breakAfterClose: false,
-            });
-            ev.sender.dataProcessor.writer.setRules("h4", {
-              indent: true,
-              breakBeforeOpen: false,
-              breakAfterOpen: false,
-              breakBeforeClose: false,
-              breakAfterClose: false,
-            });
-            ev.sender.dataProcessor.writer.setRules("h5", {
-              indent: true,
-              breakBeforeOpen: false,
-              breakAfterOpen: false,
-              breakBeforeClose: false,
-              breakAfterClose: false,
-            });
-            ev.sender.dataProcessor.writer.setRules("h6", {
-              indent: true,
-              breakBeforeOpen: false,
-              breakAfterOpen: false,
-              breakBeforeClose: false,
-              breakAfterClose: false,
-            });
-            ev.sender.dataProcessor.writer.setRules("div", {
-              indent: true,
-              breakBeforeOpen: true,
-              breakAfterOpen: true,
-              breakBeforeClose: true,
-              breakAfterClose: false,
-            });
-          },
-        },
-      },
+      preEditorConfig: ckeditorConfig.preEditorConfig(),
+      editorUrl: ckeditorConfig.editorUrl(),
       timeout: null,
+      select_edit_mode: false,
     };
   },
   computed: {
@@ -301,15 +132,7 @@ export default {
       this.setValue(vals);
     },
     onNamespaceLoaded(CKEDITOR) {
-      CKEDITOR.config.allowedContent = true;
-      // CKEDITOR.config.contentsCss =
-      // "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css";
-      CKEDITOR.config.htmlEncodeOutput = false;
-      CKEDITOR.config.entities = false;
-      // CKEDITOR.config.entities_processNumerical = 'force';
-      CKEDITOR.dtd.$removeEmpty.span = 0;
-      CKEDITOR.dtd.$removeEmpty.i = 0;
-      CKEDITOR.dtd.$removeEmpty.label = 0;
+      ckeditorConfig.onNamespaceLoaded(CKEDITOR);
     },
   },
 };

@@ -1,13 +1,28 @@
 .container-field {
+  position: relative;
   .header {
+    max-width: 50%;
     label {
       font-size: 125%;
       font-weight: bolder;
     }
   }
+  .options-config {
+    display: flex;
+    justify-content: end;
+    position: absolute;
+    left: 50%;
+    text-align: right;
+    right: 20px;
+    top: 0;
+    bottom: auto;
+  }
   .field-item-value {
     position: relative;
-    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #b1acac;
+    margin-bottom: 0.3rem;
+    padding: 1rem 2rem;
+    background-color: rgba(#efefef, 0.55);
     label,
     legend {
       font-size: 95%;
@@ -19,8 +34,22 @@
       left: auto;
       bottom: auto;
     }
-    &:first-child {
+    &:last-child {
       border: none;
+    }
+    .form-control {
+      padding: 0.5rem 1rem;
+      height: auto;
+    }
+  }
+}
+
+// size field
+.form-group {
+  &.size-sm {
+    legend {
+      font-size: 80%;
+      padding-bottom: 0.3rem;
     }
   }
 }

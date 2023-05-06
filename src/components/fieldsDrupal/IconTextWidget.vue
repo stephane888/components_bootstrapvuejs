@@ -25,6 +25,7 @@
         >
           <b-button
             v-if="cardinality"
+            v-b-tooltip.v-danger="' Supprimer '"
             variant="outline-danger"
             size="sm"
             class="p-0 border-0 elt-remove"
