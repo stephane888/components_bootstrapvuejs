@@ -2,7 +2,8 @@
 // import CKEditor from "ckeditor4-vue";
 // Vue.use(CKEditor);
 // import Vue from "vue";
-import drupalString from "./drupal-string.vue";
+import drupalString from "./DrupalString.vue";
+import drupalInteger from "./DrupalInteger.vue";
 import drupalLink from "./drupal-link.vue";
 import drupalColor from "./drupal-color.vue";
 import drupalRadios from "./DrupalRadios.vue";
@@ -50,6 +51,9 @@ export default {
       case "string":
       case "string_textfield":
         template = drupalString;
+        break;
+      case "number":
+        template = drupalInteger;
         break;
       case "email":
       case "email_default":

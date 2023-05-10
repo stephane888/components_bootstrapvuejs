@@ -60,6 +60,11 @@ export default {
       type: String,
       required: true,
     },
+    /**
+     * Pour effeutuer les requetes, certains champs initialise leur configuration, cela fontionne si l'application est interne au site.
+     * Mais dans le cadre d'une applcation decouplé, il faut utiliser la config definie par l'applicationde base. (dans ce cas on met true)
+     */
+    overrideConfig: { type: Boolean, default: false },
   },
   data() {
     return {
@@ -128,6 +133,11 @@ export default {
           entity_type_id,
           loadField.config
         );
+
+        if (this.overrideConfig) {
+          terms.remplaceConfig();
+          console.log("getTermById :::", this.overrideConfig);
+        }
         this.isLoading = true;
         terms
           .getValueById(tid)
@@ -176,7 +186,6 @@ export default {
      */
     asyncFind(search) {
       if (search.length >= 2) {
-        // Doit etre dynamique.
         let entity_type_id = this.getFistVocab();
         if (entity_type_id && loadField.config) {
           const terms = new itemsEntity(
@@ -184,6 +193,9 @@ export default {
             entity_type_id,
             loadField.config
           );
+          if (this.overrideConfig) {
+            terms.remplaceConfig();
+          }
           this.isLoading = true;
           terms
             .getSearch(search)

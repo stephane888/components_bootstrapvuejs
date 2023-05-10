@@ -16,6 +16,7 @@ On ajoute type-field-render et type-field-drupal car on a bc de mal a ce retrouv
       :model="model"
       :namespace-store="namespaceStore"
       :parent-name="parentName"
+      :override-config="overrideConfig"
     >
     </MultiSelectTaxo>
     <MultiSelectEntities
@@ -27,6 +28,7 @@ On ajoute type-field-render et type-field-drupal car on a bc de mal a ce retrouv
       :model="model"
       :namespace-store="namespaceStore"
       :parent-name="parentName"
+      :override-config="overrideConfig"
     >
     </MultiSelectEntities>
   </div>
@@ -53,6 +55,11 @@ export default {
       type: String,
       required: true,
     },
+    /**
+     * Pour effeutuer les requetes, certains champs initialise leur configuration, cela fontionne si l'application est interne au site.
+     * Mais dans le cadre d'une applcation decouplé, il faut utiliser la config definie par l'applicationde base. (dans ce cas on met true)
+     */
+    overrideConfig: { type: Boolean, default: false },
   },
 };
 </script>

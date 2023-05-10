@@ -21,7 +21,7 @@ Remplir la date par defaut avec vuejs n'est pas efficace et peux entrainer de ma
                 month: 'short',
                 day: '2-digit',
               }"
-              @input="date_change_debut"
+              @input="date_change"
             ></b-form-datepicker>
             <b-form-input
               v-if="field.type != 'datetime_default'"
@@ -30,6 +30,7 @@ Remplir la date par defaut avec vuejs n'est pas efficace et peux entrainer de ma
               type="text"
               placeholder="HH:mm:ss"
               class="input-time"
+              @input="date_change"
             ></b-form-input>
             <b-input-group-append v-if="field.type != 'datetime_default'">
               <b-form-timepicker
@@ -39,6 +40,7 @@ Remplir la date par defaut avec vuejs n'est pas efficace et peux entrainer de ma
                 show-seconds
                 locale="fr"
                 :aria-controls="'b-' + idHtml"
+                @input="date_change"
               ></b-form-timepicker>
             </b-input-group-append>
           </b-input-group>
@@ -56,6 +58,7 @@ Remplir la date par defaut avec vuejs n'est pas efficace et peux entrainer de ma
                 month: 'short',
                 day: '2-digit',
               }"
+              @input="date_change"
             ></b-form-datepicker>
             <b-form-input
               :id="'e-' + idHtml"
@@ -63,6 +66,7 @@ Remplir la date par defaut avec vuejs n'est pas efficace et peux entrainer de ma
               type="text"
               placeholder="HH:mm:ss"
               class="input-time"
+              @input="date_change"
             ></b-form-input>
             <b-input-group-append>
               <b-form-timepicker
@@ -72,6 +76,7 @@ Remplir la date par defaut avec vuejs n'est pas efficace et peux entrainer de ma
                 show-seconds
                 locale="fr"
                 :aria-controls="'e-' + idHtml"
+                @input="date_change"
               ></b-form-timepicker>
             </b-input-group-append>
           </b-input-group>
@@ -118,6 +123,14 @@ export default {
       date: { value: null, end_value: null, hour_begin: "", hour_end: "" },
       idHtml: "time-" + Math.random().toString(36),
       timeout: null,
+      /**
+       * On a deux format de sauvegarde, celui definit par string (YYYY-MM-DDTHH:mm:ss qui n'est pas un format normalisé)
+       * et celui definit par un integer (timeStamp).
+       * Pour l'instant compliqué de determiner qu'elle est le format qui doit etre utiliser.
+       * Donc, l'approche c'est de determiner le type à partir de la valeur par defaut.
+       * Par defaut, on conidere que c'est du string(pour etre compatible avec drupal >= 9.5.9).
+       */
+      checkFormatDate: "string",
     };
   },
   computed: {
@@ -173,23 +186,33 @@ export default {
         this.model[this.field.name][0] &&
         this.model[this.field.name][0].value
       ) {
-        const D_b = this.getDateFromDateTimeStamp(
-          this.model[this.field.name][0].value
-        );
+        const D_b = this.checkValue(this.model[this.field.name][0].value);
         const val = { value: D_b.date, hour_begin: D_b.hour };
         if (this.field.type == "daterange_default") {
-          const D_f = this.getDateFromDateTimeStamp(
-            this.model[this.field.name][0].end_value
-          );
+          const D_f = this.checkValue(this.model[this.field.name][0].end_value);
           val["end_value"] = D_f.date;
           val["hour_end"] = D_f.hour;
         }
         return val;
       } else
         return { value: null, end_value: null, hour_begin: "", hour_end: "" };
-      // pas necessaire ( car entrainne des mauvaise données )
-      //else return this.currentDate();
+      // pas necessaire ( car entrainne des mauvaises données )
+      // else return this.currentDate();
     },
+    checkValue(data) {
+      let value = parseInt(data);
+      if (value > 326636489) {
+        this.checkFormatDate = "int";
+        return this.getDateFromDateTimeStamp(data);
+      } else {
+        let date = new Date(data);
+        if (date) {
+          this.checkFormatDate = "string";
+          return this.getDateFromDateTimeStamp(date.getTime() / 1000);
+        }
+      }
+    },
+
     /**
      *
      * @param {*} DateTimeStamp
@@ -209,7 +232,8 @@ export default {
       };
     },
     /**
-     * @deprecated
+     * @deprecated pas utiliser ( car entrainne des mauvaise données )
+     * Permet d'ajouter la date encours ou date par defaut si vide.
      */
     currentDate() {
       const date = new Date();
@@ -230,20 +254,26 @@ export default {
     /**
      *
      */
-    date_change_debut() {
+    date_change() {
       const vals = [];
       if (this.date.value) {
         const dateDebut = new Date(
           this.date.value + " " + this.date.hour_begin
         );
-        vals.push({ value: dateDebut.getTime() / 1000 });
+        if (this.checkFormatDate == "string")
+          vals.push({ value: this.date.value + "T" + this.date.hour_begin });
+        else vals.push({ value: dateDebut.getTime() / 1000 });
       }
       //
       if (this.date.end_value && this.field.type == "daterange_default") {
         const dateFin = new Date(
           this.date.end_value + " " + this.date.hour_end
         );
-        vals.push({ end_value: dateFin.getTime() / 1000 });
+        if (this.checkFormatDate == "string")
+          vals.push({
+            end_value: this.date.end_value + "T" + this.date.hour_end,
+          });
+        else vals.push({ end_value: dateFin.getTime() / 1000 });
       }
       this.setValue(vals);
     },
