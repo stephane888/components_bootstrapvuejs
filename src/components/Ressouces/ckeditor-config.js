@@ -13,16 +13,17 @@ export default {
       // toolbars configs => https://ckeditor.com/latest/samples/toolbarconfigurator/#advanced
       toolbar: [
         {
-          name: "document",
+          name: "basicstyles",
           items: [
-            "Source",
+            "Bold",
+            "Italic",
+            "Underline",
+            "Strike",
+            "Subscript",
+            "Superscript",
             "-",
-            "Save",
-            "NewPage",
-            "Preview",
-            "Print",
-            "-",
-            "Templates",
+            "CopyFormatting",
+            "RemoveFormat",
           ],
         },
         {
@@ -36,6 +37,20 @@ export default {
             "-",
             "Undo",
             "Redo",
+          ],
+        },
+        {
+          name: "document",
+          items: [
+            "Source",
+            "-",
+            // "Save",
+            // "NewPage",
+            // "Preview",
+            // "Print",
+            // "-",
+            "Templates",
+            "CodeSnippet",
           ],
         },
         // {
@@ -57,20 +72,7 @@ export default {
         //   ],
         // },
         //"/",
-        {
-          name: "basicstyles",
-          items: [
-            "Bold",
-            "Italic",
-            "Underline",
-            "Strike",
-            "Subscript",
-            "Superscript",
-            "-",
-            "CopyFormatting",
-            "RemoveFormat",
-          ],
-        },
+
         {
           name: "paragraph",
           items: [
@@ -88,9 +90,9 @@ export default {
             "JustifyRight",
             "JustifyBlock",
             "-",
-            "BidiLtr",
-            "BidiRtl",
-            "Language",
+            // "BidiLtr",
+            // "BidiRtl",
+            // "Language",
           ],
         },
         { name: "links", items: ["Link", "Unlink", "Anchor"] },
@@ -98,6 +100,7 @@ export default {
           name: "insert",
           items: [
             "Image",
+            "QuickUploaderUpload",
             "Flash",
             "Table",
             "HorizontalRule",
@@ -197,6 +200,18 @@ export default {
     CKEDITOR.dtd.$removeEmpty.span = 0;
     CKEDITOR.dtd.$removeEmpty.i = 0;
     CKEDITOR.dtd.$removeEmpty.label = 0;
+    // quickuploader
+    // Pas necessaire on a opté d'ajouter le module dans ckeditor au niveau du theme wb-universe/ckeditor.
+    // const date = new Date();
+    // CKEDITOR.plugins.addExternal(
+    //   "quickuploader",
+    //   request.config.getBaseUrl() +
+    //     "/libraries/quickuploader/plugin.js?v=" +
+    //     date.getTime()
+    // );
+    // humm.
+    if (request.config)
+      CKEDITOR.config.quickuploaderUploadUrl = request.config.getBaseUrl();
   },
   // Le parent surchargera cette partie enfin de fournir ces styles.
   /**

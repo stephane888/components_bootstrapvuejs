@@ -81,7 +81,7 @@ export default {
   computed: {
     editorConfig() {
       var extraPlugins =
-        "codesnippet, print,format,font,colorbutton,justify,image,filebrowser,stylesheetparser";
+        "quickuploader, codesnippet, print,format,font,colorbutton,justify,image,filebrowser,stylesheetparser";
       return {
         extraPlugins: extraPlugins,
         ...this.preEditorConfig,

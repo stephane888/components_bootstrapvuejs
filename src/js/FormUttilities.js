@@ -37,7 +37,8 @@ export default {
             const sf = {
               template: loadField.getField(field),
               field: field,
-              model: entity.entity,
+              model: entity.entity, // doit etre supprimer pour la version 2x, cela est une information de trop.
+              //(on doit utiliser celui definit au niveau du container)
               entities: [],
             };
             if (entity.entities && entity.entities[field.name]) {

@@ -8,42 +8,49 @@ On ajoute type-field-render et type-field-drupal car on a bc de mal a ce retrouv
     :type-field-drupal="field.type"
   >
     <div class="field-item-value js-form-type-radio" :format_val="format_val">
-      <ValidationProvider :name="fullname" :rules="getRules()" v-slot="v">
-        <!-- On a different cas de figure-->
-        <OptionsTaxonomy
-          v-if="
-            field.definition_settings.target_type &&
-            field.definition_settings.target_type == 'taxonomy_term'
-          "
-          :field="field"
-          :model="model"
-          :namespace-store="namespaceStore"
-          @setValue="setValue"
-        >
-        </OptionsTaxonomy>
-        <OptionsAllowedValues
-          v-else-if="
-            field.definition_settings.allowed_values &&
-            Object.keys(field.definition_settings.allowed_values).length > 0
-          "
-          :field="field"
-          :model="model"
-          :namespace-store="namespaceStore"
-          @setValue="setValue"
-        ></OptionsAllowedValues>
-        <OptionsEntities
-          v-else-if="
-            field.definition_settings.target_type &&
-            field.definition_settings.target_type != ''
-          "
-          :field="field"
-          :model="model"
-          :namespace-store="namespaceStore"
-          @setValue="setValue"
-        >
-        </OptionsEntities>
+      <!-- On a different cas de figure-->
+      <OptionsTaxonomy
+        v-if="
+          field.definition_settings.target_type &&
+          field.definition_settings.target_type == 'taxonomy_term'
+        "
+        :field="field"
+        :model="model"
+        :namespace-store="namespaceStore"
+        :fullname="fullname"
+        @setValue="setValue"
+      >
+      </OptionsTaxonomy>
+      <OptionsAllowedValues
+        v-else-if="
+          field.definition_settings.allowed_values &&
+          Object.keys(field.definition_settings.allowed_values).length > 0
+        "
+        :field="field"
+        :model="model"
+        :namespace-store="namespaceStore"
+        :fullname="fullname"
+        @setValue="setValue"
+      ></OptionsAllowedValues>
+      <OptionsEntities
+        v-else-if="
+          field.definition_settings.target_type &&
+          field.definition_settings.target_type != ''
+        "
+        :field="field"
+        :model="model"
+        :namespace-store="namespaceStore"
+        @setValue="setValue"
+      >
+      </OptionsEntities>
+
+      <ValidationProvider
+        v-else
+        v-slot="v"
+        :name="fullname"
+        :rules="getRules()"
+      >
         <b-form-group
-          v-else
           :label="field.label"
           :name="fullname"
           :class="size ? 'size-' + size : ''"
@@ -99,13 +106,10 @@ On ajoute type-field-render et type-field-drupal car on a bc de mal a ce retrouv
 
 <script>
 import config from "./loadField";
-// import { ValidationProvider } from "vee-validate";
-// import "./vee-validation-rules";
 import svgLoader from "./svg-preloader.vue";
 export default {
   name: "DrupalRadios",
   components: {
-    // ValidationProvider,
     svgLoader,
     OptionsTaxonomy: () => {
       return import("../Ressouces/OptionsTaxonomy.vue");

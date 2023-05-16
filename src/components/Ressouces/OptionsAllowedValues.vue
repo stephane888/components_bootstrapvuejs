@@ -1,25 +1,35 @@
 <template>
   <div>
     <div class="d-none for-test">options value : {{ field.type }}</div>
-    <b-form-group :label="field.label">
-      <b-form-select
-        v-if="field.type == 'options_select'"
-        v-model="selected"
-        :options="options_allowed_values"
-        @change="input"
-      ></b-form-select>
-      <b-form-radio-group
-        v-else
-        v-model="selected"
-        :options="options_allowed_values"
-        :name="field.name"
-        @change="input"
-      ></b-form-radio-group>
-    </b-form-group>
+    <ValidationProvider
+      v-slot="validation"
+      :name="fullname"
+      :rules="getRules()"
+    >
+      <b-form-group :label="field.label">
+        <b-form-select
+          v-if="field.type == 'options_select'"
+          v-model="selected"
+          :options="options_allowed_values"
+          :state="getValidationState(validation)"
+          :name="fullname"
+          @change="input"
+        ></b-form-select>
+        <b-form-radio-group
+          v-else
+          v-model="selected"
+          :options="options_allowed_values"
+          :name="fullname"
+          :state="getValidationState(validation)"
+          @change="input"
+        ></b-form-radio-group>
+      </b-form-group>
+    </ValidationProvider>
   </div>
 </template>
 
 <script>
+import config from "../fieldsDrupal/loadField";
 export default {
   name: "OptionsAllowedValues",
   components: {},
@@ -27,6 +37,7 @@ export default {
     field: { type: Object, required: true },
     model: { type: [Object, Array], required: true },
     namespaceStore: { type: String, required: true },
+    fullname: { type: String, required: true },
   },
   data() {
     return {
@@ -50,6 +61,10 @@ export default {
     is_target_type() {
       if (this.field.definition_settings.target_type) return true;
       else return false;
+    },
+    is_multiple() {
+      if (this.field.cardinality === 1) return false;
+      else return true;
     },
   },
   mounted() {
@@ -82,6 +97,15 @@ export default {
         else return this.model[this.field.name][0].value;
       }
       return null;
+    },
+    getValidationState(validation) {
+      var valid = true;
+      return (validation.dirty || validation.validated) && !valid
+        ? valid
+        : null;
+    },
+    getRules() {
+      return config.getRules(this.field);
     },
   },
 };
