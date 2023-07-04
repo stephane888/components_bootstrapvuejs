@@ -222,7 +222,12 @@ export default {
       date.setTime(parseInt(DateTimeStamp) * 1000);
       let month = parseInt(date.getMonth()) + 1;
       return {
-        date: date.getFullYear() + "-" + month + "-" + date.getDate(),
+        date:
+          date.getFullYear() +
+          "-" +
+          ("0" + month).slice(-2) +
+          "-" +
+          date.getDate(),
         hour:
           ("0" + date.getHours()).slice(-2) +
           ":" +
@@ -231,6 +236,7 @@ export default {
           ("0" + date.getSeconds()).slice(-2),
       };
     },
+
     /**
      * @deprecated pas utiliser ( car entrainne des mauvaise données )
      * Permet d'ajouter la date encours ou date par defaut si vide.

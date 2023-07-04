@@ -83,6 +83,12 @@ export default {
    *   creates: 0, // incrementé durant le process.
    *   ...
    * },
+   * Evolution : 1
+   * On a remarqué un nouveau paramettre,
+   * target_revision_id (qui est requis pour que le processus de sauvegarde se passe bien).
+   * La logique est de verifier la l'object reference, s'il contient un nouveau element on declenche une erreur.
+   * les elements supportés pour le moment sont : target_revision_id, target_id.
+   * **
    * @param {Object} datas contient les données à sauvegarder.
    * @param {Object} suivers permet de suivre la creation
    * @return {Array} un tableau d'entité de drupal.
@@ -101,6 +107,34 @@ export default {
         }
         return entity;
       };
+      const loopItemAddValues = (values, resp, has_target_revision_id) => {
+        console.log(
+          "loopItemAddValues values : ",
+          values,
+          "\n resp : ",
+          resp,
+          "\n has_target_revision_id : ",
+          has_target_revision_id
+        );
+        if (has_target_revision_id) {
+          // try to get revision.
+          var revision_id;
+          if (
+            resp.data.json.revision_id &&
+            resp.data.json.revision_id[0] &&
+            resp.data.json.revision_id[0].value
+          ) {
+            revision_id = resp.data.json.revision_id[0].value;
+          } else {
+            return false;
+          }
+          values.push({
+            target_id: resp.data.id,
+            target_revision_id: revision_id,
+          });
+        } else values.push({ target_id: resp.data.id });
+        return true;
+      };
 
       /**
        * Permet de creer les sous contenus et return les target_ids.
@@ -108,9 +142,13 @@ export default {
        * @param {Integer} i
        * @param {Array} values
        */
-      const loopItem = (items, i, values = []) => {
+      const loopItem = (
+        items,
+        i,
+        values = [],
+        has_target_revision_id = false
+      ) => {
         return new Promise((resolv, reject) => {
-          console.log("loopItem : ", items);
           if (items[i]) {
             const item = items[i];
             if (items[i].entities) {
@@ -131,10 +169,16 @@ export default {
                     })
                     .then((resp) => {
                       suivers.creates++;
-                      values.push({ target_id: resp.data.id });
+                      console.log(" Before loopItemAddValues 1 : ", values);
+                      if (
+                        !loopItemAddValues(values, resp, has_target_revision_id)
+                      )
+                        reject(" Revision requis mais non definit ");
                       i = i + 1;
                       if (i < items.length) {
-                        resolv(loopItem(items, i, values));
+                        resolv(
+                          loopItem(items, i, values, has_target_revision_id)
+                        );
                       } else resolv(values);
                     })
                     .catch((er) => {
@@ -155,10 +199,14 @@ export default {
                 })
                 .then((resp) => {
                   suivers.creates++;
-                  values.push({ target_id: resp.data.id });
+                  console.log(" Before loopItemAddValues 2 : ", values);
+                  if (!loopItemAddValues(values, resp, has_target_revision_id))
+                    reject(" Revision requis mais non definit ");
+                  // values.push({ target_id: resp.data.id });
+
                   i = i + 1;
                   if (items.length <= i) {
-                    resolv(loopItem(items, i, values));
+                    resolv(loopItem(items, i, values, has_target_revision_id));
                   } else {
                     resolv(values);
                   }
@@ -184,14 +232,40 @@ export default {
        */
       const loopFieldEntity = (datas, fieldname, entity, keys, i) => {
         return new Promise((resolv, reject) => {
-          console.log(" loopFieldEntity : ", datas);
+          console.log(
+            " loopFieldEntity : ",
+            datas,
+            "\n fieldname : ",
+            fieldname
+          );
           // Si le champs contient des données,
           // on parcourt chacune des entrées.
           if (datas[fieldname] && datas[fieldname].length > 0) {
+            console.log(
+              "entity[fieldname][0] : ",
+              entity[fieldname][0],
+              "\n : ",
+              entity
+            );
+            // on verifie s'il ya des entrées supplementaire
+            if (entity[fieldname][0]) {
+              var has_target_revision_id = false;
+              const keys = Object.keys(entity[fieldname][0]);
+              //
+              if (keys.includes("target_revision_id")) {
+                has_target_revision_id = true;
+              }
+              // s'il ya plus de entrées , on emet une erreur de peur de perdre les données.
+              if (keys.length > 2) {
+                reject(
+                  "On a plus de donnée que pruvu dans l'objet à enregistrer"
+                );
+              }
+            }
             // Pour chaque champs, on cree les contenus et on recupere les ids.
-            loopItem(datas[fieldname], 0)
+            loopItem(datas[fieldname], 0, [], has_target_revision_id)
               .then((resp) => {
-                console.log("loopFieldEntity result of loopItem : ", resp);
+                console.log(" loopFieldEntity result of loopItem : ", resp);
                 entity[fieldname] = resp;
                 // on passe au champs suivant.
                 i = i + 1;

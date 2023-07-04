@@ -128,11 +128,11 @@ export default {
     getTermById(tid) {
       let entity_type_id = this.getFistVocab();
       if (entity_type_id && loadField.config) {
-        const terms = new itemsEntity(
-          entity_type_id,
-          entity_type_id,
-          loadField.config
-        );
+        const bundle = this.field.definition_settings.bundle_entity_type_id
+          ? this.field.definition_settings.bundle_entity_type_id
+          : entity_type_id;
+
+        const terms = new itemsEntity(entity_type_id, bundle, loadField.config);
 
         if (this.overrideConfig) {
           terms.remplaceConfig();
@@ -188,9 +188,12 @@ export default {
       if (search.length >= 2) {
         let entity_type_id = this.getFistVocab();
         if (entity_type_id && loadField.config) {
+          const bundle = this.field.definition_settings.bundle_entity_type_id
+            ? this.field.definition_settings.bundle_entity_type_id
+            : entity_type_id;
           const terms = new itemsEntity(
             entity_type_id,
-            entity_type_id,
+            bundle,
             loadField.config
           );
           if (this.overrideConfig) {

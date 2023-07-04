@@ -12,7 +12,7 @@
           :key="index"
           class="field-item-value"
         >
-          <label>{{ field.settings.label_1 }}</label>
+          <label> {{ field.settings.label_1 }} </label>
           <b-form-textarea
             v-model="value.value"
             :placeholder="field.placeholder"
@@ -107,7 +107,6 @@ export default {
   data() {
     return {
       input_value: [{ value: "", text: "", format: "text_html" }],
-      timeout: null,
       editorConfig: ckeditorConfig.preEditorConfig(),
       editorUrl: ckeditorConfig.editorUrl(),
       select_edit_mode: true,
@@ -152,27 +151,36 @@ export default {
       return loadField.getRules(this.field);
     },
     setValue(vals) {
-      clearTimeout(this.timeout);
-      this.timeout = setTimeout(() => {
+      return new Promise((resolv, reject) => {
         if (this.namespaceStore) {
-          this.$store.dispatch(this.namespaceStore + "/setValue", {
-            value: vals,
-            fieldName: this.fullname,
-          });
+          this.$store
+            .dispatch(this.namespaceStore + "/setValue", {
+              value: vals,
+              fieldName: this.fullname,
+            })
+            .then(() => {
+              resolv();
+            })
+            .catch(() => {
+              reject();
+            });
         } else
-          this.$store.dispatch("setValue", {
-            value: vals,
-            fieldName: this.fullname,
-          });
-      }, loadField.timeToWait);
+          this.$store
+            .dispatch("setValue", {
+              value: vals,
+              fieldName: this.fullname,
+            })
+            .then(() => {
+              resolv();
+            })
+            .catch(() => {
+              reject();
+            });
+      });
     },
     getValue() {
-      if (
-        this.model[this.field.name] &&
-        this.model[this.field.name].length > 0
-      ) {
-        return this.model[this.field.name];
-      } else return [];
+      // J'ai pas bien compris comment cela marche, mais le fait de retourner direcment cette object (this.model[this.field.name]) fonctionne.
+      return this.model[this.field.name];
     },
     /**
      * Tentative de resolution.
@@ -194,6 +202,11 @@ export default {
     addField() {
       const newEntry = { value: "", text: "", format: "text_html" };
       this.input_value.push(newEntry);
+      // console.log("this.model[this.field.name]", this.model[this.field.name]);
+      // // si le tableau de données est vide, on le remplie
+      // this.setValue(this.input_value).then(() => {
+      //   this.getValue();
+      // });
     },
     remove(index) {
       this.input_value.splice(index, 1);
