@@ -63,7 +63,7 @@ export default {
   },
   data() {
     return {
-      idAcordion: "accordion-" + Math.random().toString(36),
+      idAcordion: "accordion-" + Math.random().toString(36).slice(2),
       fields: [],
     };
   },

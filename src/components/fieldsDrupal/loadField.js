@@ -24,6 +24,7 @@ import StockLevel from "./StockLevel.vue";
 import iconTextWidget from "./IconTextWidget.vue";
 import chartWidgetType from "./ChartWidgetType.vue";
 import TexTarea from "./TexTarea.vue";
+import PhoneInternational from "./PhoneInternational.vue";
 // @deprecated will be remove before 2x. use MoreFieldsIconDescription
 import MoreFieldsIconwTextidget from "./MoreFieldsIconwTextidget.vue";
 import MoreFieldsIconDescription from "./MoreFieldsIconwDescriptionidget.vue";
@@ -139,6 +140,9 @@ export default {
         break;
       case "more_fields_icon_text_description_widget":
         template = MoreFieldsIconDescription;
+        break;
+      case "phone_international_widget":
+        template = PhoneInternational;
         break;
       default:
         console.log(" Champs sans rendu : ", key, "\n field : ", field);

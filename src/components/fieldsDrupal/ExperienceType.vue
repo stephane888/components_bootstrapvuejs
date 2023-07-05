@@ -126,7 +126,7 @@ export default {
   },
   data() {
     return {
-      idHtml: "sort-" + Math.random().toString(36),
+      idHtml: "sort-" + Math.random().toString(36).slice(2),
       currentEditValue: {},
       showFormEdit: false,
       sortable: null,

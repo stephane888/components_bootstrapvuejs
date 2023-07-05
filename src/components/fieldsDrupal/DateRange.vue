@@ -121,7 +121,7 @@ export default {
     return {
       // format pour D9.5.0 >= 2023-01-03T09:23:48
       date: { value: null, end_value: null, hour_begin: "", hour_end: "" },
-      idHtml: "time-" + Math.random().toString(36),
+      idHtml: "time-" + Math.random().toString(36).slice(2),
       timeout: null,
       /**
        * On a deux format de sauvegarde, celui definit par string (YYYY-MM-DDTHH:mm:ss qui n'est pas un format normalisé)

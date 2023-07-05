@@ -63,7 +63,7 @@ export default {
   },
   data() {
     return {
-      idAcordion: "accd-item-" + Math.random().toString(36),
+      idAcordion: "accd-item-" + Math.random().toString(36).slice(2),
       isOpen: false,
     };
   },
