@@ -21,6 +21,12 @@ export default {
    * NB: la valeur retounée est valide si l'execution est strictement en serie.
    */
   lastIdsEntity: [],
+  /**
+   * Represente le nombre d'essaie qui peut etre effectuer avant de marquer l'action comme non aboutie.
+   */
+  numberTry: 0,
+
+  timeWaitBeforeRetry: 15000,
 
   /**
    * Permet de generer le formulaire drupal.
@@ -98,32 +104,17 @@ export default {
       // on vide les derniers ids.
       this.lastIdsEntity = [];
       const updateDomainId = (entity) => {
-        if (
-          ActionDomainId &&
-          this.domainRegister.id &&
-          entity.field_domain_access
-        ) {
+        if (ActionDomainId && this.domainRegister.id && entity.field_domain_access) {
           entity.field_domain_access = [{ target_id: this.domainRegister.id }];
         }
         return entity;
       };
       const loopItemAddValues = (values, resp, has_target_revision_id) => {
-        console.log(
-          "loopItemAddValues values : ",
-          values,
-          "\n resp : ",
-          resp,
-          "\n has_target_revision_id : ",
-          has_target_revision_id
-        );
+        //console.log("loopItemAddValues values : ", values, "\n resp : ", resp, "\n has_target_revision_id : ", has_target_revision_id);
         if (has_target_revision_id) {
           // try to get revision.
           var revision_id;
-          if (
-            resp.data.json.revision_id &&
-            resp.data.json.revision_id[0] &&
-            resp.data.json.revision_id[0].value
-          ) {
+          if (resp.data.json.revision_id && resp.data.json.revision_id[0] && resp.data.json.revision_id[0].value) {
             revision_id = resp.data.json.revision_id[0].value;
           } else {
             return false;
@@ -142,79 +133,90 @@ export default {
        * @param {Integer} i
        * @param {Array} values
        */
-      const loopItem = (
-        items,
-        i,
-        values = [],
-        has_target_revision_id = false
-      ) => {
+      const loopItem = (items, i, values = [], has_target_revision_id = false, essaie = 0) => {
         return new Promise((resolv, reject) => {
           if (items[i]) {
             const item = items[i];
             if (items[i].entities) {
               const keys = Object.keys(items[i].entities);
-              loopFieldEntity(
-                items[i].entities,
-                keys[0],
-                items[i].entity,
-                keys,
-                0
-              )
+              loopFieldEntity(items[i].entities, keys[0], items[i].entity, keys, 0)
                 .then((entity) => {
-                  store
-                    .dispatch("saveEntity", {
-                      entity_type_id: items[i].target_type,
-                      value: updateDomainId(entity),
-                      index: i,
-                    })
-                    .then((resp) => {
-                      suivers.creates++;
-                      console.log(" Before loopItemAddValues 1 : ", values);
-                      if (
-                        !loopItemAddValues(values, resp, has_target_revision_id)
-                      )
-                        reject(" Revision requis mais non definit ");
-                      i = i + 1;
-                      if (i < items.length) {
-                        resolv(
-                          loopItem(items, i, values, has_target_revision_id)
-                        );
-                      } else resolv(values);
-                    })
-                    .catch((er) => {
-                      console.log(" catch loopItem : ", er);
-                      reject(er);
-                    });
+                  const saveEntity = () => {
+                    store
+                      .dispatch("saveEntity", {
+                        entity_type_id: items[i].target_type,
+                        value: updateDomainId(entity),
+                        index: i,
+                      })
+                      .then((resp) => {
+                        suivers.creates++;
+                        //console.log(" Before loopItemAddValues 1 : ", values);
+                        if (!loopItemAddValues(values, resp, has_target_revision_id)) reject(" Revision requis mais non definit ");
+                        i = i + 1;
+                        if (i < items.length) {
+                          resolv(loopItem(items, i, values, has_target_revision_id));
+                        } else resolv(values);
+                      })
+                      .catch((er) => {
+                        /**
+                         * Si l'utilisateur a defini un nombre d'essaie.
+                         */
+                        if (essaie < this.numberTry) {
+                          essaie++;
+                          //console.log("loopItem re-try : ", essaie);
+                          setTimeout(() => {
+                            saveEntity();
+                          }, this.timeWaitBeforeRetry);
+                        } else {
+                          //console.log(" catch loopItem : ", er);
+                          reject(er);
+                        }
+                      });
+                  };
+                  saveEntity();
                 })
                 .catch((er) => {
-                  console.log(" catch loopItem : ", er);
+                  //console.log(" catch loopItem : ", er);
                   reject(er);
                 });
             } else {
-              store
-                .dispatch("saveEntity", {
-                  entity_type_id: item.target_type,
-                  value: updateDomainId(item.entity),
-                  index: i,
-                })
-                .then((resp) => {
-                  suivers.creates++;
-                  console.log(" Before loopItemAddValues 2 : ", values);
-                  if (!loopItemAddValues(values, resp, has_target_revision_id))
-                    reject(" Revision requis mais non definit ");
-                  // values.push({ target_id: resp.data.id });
+              const saveEntity = () => {
+                store
+                  .dispatch("saveEntity", {
+                    entity_type_id: item.target_type,
+                    value: updateDomainId(item.entity),
+                    index: i,
+                  })
+                  .then((resp) => {
+                    suivers.creates++;
+                    //console.log(" Before loopItemAddValues 2 : ", values);
+                    if (!loopItemAddValues(values, resp, has_target_revision_id)) reject(" Revision requis mais non definit ");
+                    // values.push({ target_id: resp.data.id });
 
-                  i = i + 1;
-                  if (items.length <= i) {
-                    resolv(loopItem(items, i, values, has_target_revision_id));
-                  } else {
-                    resolv(values);
-                  }
-                })
-                .catch((er) => {
-                  console.log("catch loopItem : ", er);
-                  reject(er);
-                });
+                    i = i + 1;
+                    if (items.length <= i) {
+                      resolv(loopItem(items, i, values, has_target_revision_id));
+                    } else {
+                      resolv(values);
+                    }
+                  })
+                  .catch((er) => {
+                    /**
+                     * Si l'utilisateur a defini un nombre d'essaie.
+                     */
+                    if (essaie < this.numberTry) {
+                      essaie++;
+                      //console.log("loopItem re-try : ", essaie);
+                      setTimeout(() => {
+                        saveEntity();
+                      }, this.timeWaitBeforeRetry);
+                    } else {
+                      //console.log("catch loopItem : ", er);
+                      reject(er);
+                    }
+                  });
+              };
+              saveEntity();
             }
           } else resolv(values);
         });
@@ -232,21 +234,11 @@ export default {
        */
       const loopFieldEntity = (datas, fieldname, entity, keys, i) => {
         return new Promise((resolv, reject) => {
-          console.log(
-            " loopFieldEntity : ",
-            datas,
-            "\n fieldname : ",
-            fieldname
-          );
+          //console.log(" loopFieldEntity : ", datas, "\n fieldname : ", fieldname);
           // Si le champs contient des données,
           // on parcourt chacune des entrées.
           if (datas[fieldname] && datas[fieldname].length > 0) {
-            console.log(
-              "entity[fieldname][0] : ",
-              entity[fieldname][0],
-              "\n : ",
-              entity
-            );
+            //console.log("entity[fieldname][0] : ", entity[fieldname][0], "\n : ", entity);
             // on verifie s'il ya des entrées supplementaire
             if (entity[fieldname][0]) {
               var has_target_revision_id = false;
@@ -257,15 +249,13 @@ export default {
               }
               // s'il ya plus de entrées , on emet une erreur de peur de perdre les données.
               if (keys.length > 2) {
-                reject(
-                  "On a plus de donnée que pruvu dans l'objet à enregistrer"
-                );
+                reject("On a plus de donnée que pruvu dans l'objet à enregistrer");
               }
             }
             // Pour chaque champs, on cree les contenus et on recupere les ids.
             loopItem(datas[fieldname], 0, [], has_target_revision_id)
               .then((resp) => {
-                console.log(" loopFieldEntity result of loopItem : ", resp);
+                //console.log(" loopFieldEntity result of loopItem : ", resp);
                 entity[fieldname] = resp;
                 // on passe au champs suivant.
                 i = i + 1;
@@ -276,7 +266,7 @@ export default {
                 }
               })
               .catch((er) => {
-                console.log("catch loopFieldEntity : ", er);
+                //console.log("catch loopFieldEntity : ", er);
                 reject(er);
               });
           } else resolv(entity);
@@ -293,75 +283,94 @@ export default {
        * @return resp [{id:..., json:...}] // return un json avec une proprieté json et une autre id.
        * @K erreur signalé.
        */
-      const loopEntityPromise = (datas, i = null, values = []) => {
+      const loopEntityPromise = (datas, i = null, values = [], essaie = 0) => {
         return new Promise((resolv, reject) => {
-          console.log("loopEntityPromise : ", datas);
+          //console.log("loopEntityPromise : ", datas);
           if (datas[i]) {
             // S'il contient des sous entités.
             if (datas[i].entities && typeof datas[i].entities === "object") {
               const keys = Object.keys(datas[i].entities);
-              loopFieldEntity(
-                datas[i].entities,
-                keys[0],
-                datas[i].entity,
-                keys,
-                0
-              )
+              loopFieldEntity(datas[i].entities, keys[0], datas[i].entity, keys, 0)
                 .then((entity) => {
-                  console.log(
-                    " loopEntityPromise SEND with override entity : ",
-                    entity
-                  );
-                  store
-                    .dispatch("saveEntity", {
-                      entity_type_id: datas[i].target_type,
-                      value: updateDomainId(entity),
-                      index: i,
-                    })
-                    .then((resp) => {
-                      suivers.creates++;
-                      this.lastIdsEntity.push({ target_id: resp.data.id });
-                      values.push(resp.data.json);
-                      // datas[i].entity = resp.data.json;
-                      i = i + 1;
-                      if (i < datas.length) {
-                        resolv(loopEntityPromise(datas, i, values));
-                      } else resolv(values);
-                    })
-                    .catch((er) => {
-                      console.log("catch loopEntityPromise : ", er);
-                      reject(er);
-                    });
+                  //console.log(" loopEntityPromise SEND with override entity : ", entity);
+                  const saveEntity = () => {
+                    store
+                      .dispatch("saveEntity", {
+                        entity_type_id: datas[i].target_type,
+                        value: updateDomainId(entity),
+                        index: i,
+                      })
+                      .then((resp) => {
+                        suivers.creates++;
+                        this.lastIdsEntity.push({ target_id: resp.data.id });
+                        values.push(resp.data.json);
+                        // datas[i].entity = resp.data.json;
+                        i = i + 1;
+                        if (i < datas.length) {
+                          resolv(loopEntityPromise(datas, i, values));
+                        } else resolv(values);
+                      })
+                      .catch((er) => {
+                        /**
+                         * Si l'utilisateur a defini un nombre d'essaie.
+                         */
+                        if (essaie < this.numberTry) {
+                          essaie++;
+                          //console.log("loopEntityPromise re-try : ", essaie);
+                          setTimeout(() => {
+                            saveEntity();
+                          }, this.timeWaitBeforeRetry);
+                        } else {
+                          //console.log("catch loopEntityPromise : ", er);
+                          reject(er);
+                        }
+                      });
+                  };
+                  saveEntity();
                 })
                 .catch((er) => {
-                  console.log("catch loopEntityPromise : ", er);
+                  //console.log("catch loopEntityPromise : ", er);
                   reject(er);
                 });
             }
             // S'il ne contient pas de sous entité.
             else {
-              store
-                .dispatch("saveEntity", {
-                  entity_type_id: datas[i].target_type,
-                  value: updateDomainId(datas[i].entity),
-                  index: i,
-                })
-                .then((resp) => {
-                  suivers.creates++;
-                  this.lastIdsEntity.push({ target_id: resp.data.id });
-                  values.push(resp.data.json);
-                  i = i + 1;
-                  if (i < datas.length) {
-                    resolv(loopEntityPromise(datas, i, values));
-                  } else resolv(values);
-                })
-                .catch((er) => {
-                  console.log("catch loopEntityPromise : ", er);
-                  reject(er);
-                });
+              const saveEntity = () => {
+                store
+                  .dispatch("saveEntity", {
+                    entity_type_id: datas[i].target_type,
+                    value: updateDomainId(datas[i].entity),
+                    index: i,
+                  })
+                  .then((resp) => {
+                    suivers.creates++;
+                    this.lastIdsEntity.push({ target_id: resp.data.id });
+                    values.push(resp.data.json);
+                    i = i + 1;
+                    if (i < datas.length) {
+                      resolv(loopEntityPromise(datas, i, values));
+                    } else resolv(values);
+                  })
+                  .catch((er) => {
+                    /**
+                     * Si l'utilisateur a defini un nombre d'essaie.
+                     */
+                    if (essaie < this.numberTry) {
+                      essaie++;
+                      //console.log("loopEntityPromise re-try : ", essaie);
+                      setTimeout(() => {
+                        saveEntity();
+                      }, this.timeWaitBeforeRetry);
+                    } else {
+                      //console.log("catch loopEntityPromise : ", er);
+                      reject(er);
+                    }
+                  });
+              };
+              saveEntity();
             }
           } else {
-            console.log(" loopEntityPromise END ");
+            //console.log(" loopEntityPromise END ");
             resolv([]);
           }
         });
