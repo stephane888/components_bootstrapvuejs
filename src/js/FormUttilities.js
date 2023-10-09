@@ -101,16 +101,19 @@ export default {
    */
   prepareSaveEntities(store, datas, suivers, ActionDomainId = false) {
     return new Promise((resolu, rejecte) => {
+      console.log("prepareSaveEntities");
       // on vide les derniers ids.
       this.lastIdsEntity = [];
       const updateDomainId = (entity) => {
+        console.log("entity.field_domain_source : ", entity, "\n ActionDomainId : ", ActionDomainId, "\n this.domainRegister : ", this.domainRegister);
         if (ActionDomainId && this.domainRegister.id && entity.field_domain_access) {
           entity.field_domain_access = [{ target_id: this.domainRegister.id }];
+          if (entity.field_domain_source !== undefined) entity.field_domain_source = [{ target_id: this.domainRegister.id }];
         }
         return entity;
       };
       const loopItemAddValues = (values, resp, has_target_revision_id) => {
-        //console.log("loopItemAddValues values : ", values, "\n resp : ", resp, "\n has_target_revision_id : ", has_target_revision_id);
+        // console.log("loopItemAddValues values : ", values, "\n resp : ", resp, "\n has_target_revision_id : ", has_target_revision_id);
         if (has_target_revision_id) {
           // try to get revision.
           var revision_id;
