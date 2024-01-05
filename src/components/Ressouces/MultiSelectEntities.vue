@@ -205,9 +205,11 @@ export default {
             .then(() => {
               this.options = terms.getOptions();
               this.isLoading = false;
+              console.log(this.options);
             })
-            .catch(() => {
+            .catch((e) => {
               this.isLoading = false;
+              console.log(e);
             });
         }
       }
