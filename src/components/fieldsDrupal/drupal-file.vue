@@ -1,6 +1,6 @@
 <template>
   <div class="vuejs-uploader" :class="classCss">
-    <ValidationProvider :name="fullname" :rules="getRules()" v-slot="v">
+    <ValidationProvider v-slot="v" :name="fullname" :rules="getRules()">
       <b-form-group :label="field.label" :description="field.description">
         <b-form-file
           v-if="cardinality | (toUplode.length == 0)"
@@ -16,8 +16,8 @@
         ></b-form-file>
       </b-form-group>
     </ValidationProvider>
-    <div class="previews d-flex flex-wrap">
-      <div v-for="(fil, i) in toUplode" :key="i" class="item">
+    <div class="previews">
+      <div v-for="(fil, i) in toUplode" :key="i" class="item d-flex w-100">
         <b-img
           :src="fil.url"
           fluid
@@ -33,6 +33,22 @@
           class="icon-delete"
           @click="delete_file(i, fil)"
         ></b-icon>
+        <ValidationProvider
+          v-if="field.definition_settings.alt_field"
+          v-slot="v"
+          :rules="getAltRules"
+          :name="field.name + '_alt_' + i"
+          class="align-self-center flex-grow-1"
+        >
+          <b-form-input
+            v-model="alts[i]"
+            :state="getValidationState(v)"
+            class="align-self-center"
+            placeholder="Alt"
+            :name="field.name + '_alt_' + i"
+            @input="updateValue('alt', i, alts[i])"
+          ></b-form-input>
+        </ValidationProvider>
       </div>
     </div>
   </div>
@@ -71,6 +87,7 @@ export default {
       files: [],
       // Fichiers uploaded.
       toUplode: [],
+      alts: [],
     };
   },
   computed: {
@@ -102,8 +119,23 @@ export default {
       } else return "";
     },
   },
+  watch: {
+    /**
+     *
+     * @param {Array} newModel
+     * @param {array} oldModel
+     */
+    model(newModel, oldModel) {
+      this.alts = newModel[this.field.name].map((element) => {
+        return element.alt ? element.alt : "";
+      });
+    },
+  },
   mounted() {
     this.getValue();
+    this.alts = this.model[this.field.name].map((element) => {
+      return element.alt ? element.alt : "";
+    });
   },
   methods: {
     /**
@@ -118,6 +150,14 @@ export default {
      */
     getRules() {
       return request.getRules(this.field);
+    },
+    /**
+     * @return {String} rules for the alt field
+     */
+    getAltRules() {
+      return this.field.definition_settings.alt_field_required
+        ? "required"
+        : "";
     },
     /**
      *
@@ -192,16 +232,14 @@ export default {
       }
     },
     setValue(vals) {
-      if (this.namespaceStore) {
-        this.$store.dispatch(this.namespaceStore + "/setValue", {
-          value: vals,
-          fieldName: this.fullname,
-        });
-      } else
-        this.$store.dispatch("setValue", {
-          value: vals,
-          fieldName: this.fullname,
-        });
+      const storeAction = this.namespaceStore
+        ? this.namespaceStore + "/setValue"
+        : "setValue";
+
+      this.$store.dispatch(storeAction, {
+        value: vals,
+        fieldName: this.fullname,
+      });
     },
     getValue() {
       if (this.model[this.field.name] && this.model[this.field.name].length) {
@@ -220,6 +258,14 @@ export default {
           }
         });
       }
+    },
+    updateValue(property, index, value) {
+      const storeAction = this.namespaceStore
+        ? this.namespaceStore + "/getValue"
+        : "getValue";
+      const vals = this.model[this.field.name];
+      vals[index][property] = value;
+      this.setValue(vals);
     },
     delete_file(index, file) {
       if (
