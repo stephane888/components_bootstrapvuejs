@@ -96,6 +96,7 @@ export default {
         break;
       case "image":
       case "image_image":
+      case "hbk_file_generic":
         template = drupalFile;
         break;
       case "experience_type":

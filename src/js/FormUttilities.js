@@ -101,11 +101,11 @@ export default {
    */
   prepareSaveEntities(store, datas, suivers, ActionDomainId = false) {
     return new Promise((resolu, rejecte) => {
-      console.log("prepareSaveEntities");
+      //console.log("prepareSaveEntities");
       // on vide les derniers ids.
       this.lastIdsEntity = [];
       const updateDomainId = (entity) => {
-        console.log("entity.field_domain_source : ", entity, "\n ActionDomainId : ", ActionDomainId, "\n this.domainRegister : ", this.domainRegister);
+        //console.log("entity.field_domain_source : ", entity, "\n ActionDomainId : ", ActionDomainId, "\n this.domainRegister : ", this.domainRegister);
         if (ActionDomainId && this.domainRegister.id && entity.field_domain_access) {
           entity.field_domain_access = [{ target_id: this.domainRegister.id }];
           if (entity.field_domain_source !== undefined) entity.field_domain_source = [{ target_id: this.domainRegister.id }];
