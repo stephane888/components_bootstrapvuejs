@@ -152,8 +152,13 @@ export default {
     }
     return template;
   },
-  getImageUrl(fid, style = "medium") {
-    return this.config.get("/filesmanager/image/" + fid + "/" + style);
+  getImageUrl(fid, style = "medium", param = []) {
+    const url = this.config.get("/filesmanager/image/" + fid + "/" + style);
+    console.log("image url: ", url);
+    return url;
+  },
+  getVideoThumbUrl(fid, style = "medium") {
+    return this.config.get("/filesmanager/hbk_generic/" + fid + "/" + style);
   },
   getRules(field) {
     const rules = {};
