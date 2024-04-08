@@ -25,6 +25,7 @@ import iconTextWidget from "./IconTextWidget.vue";
 import chartWidgetType from "./ChartWidgetType.vue";
 import TexTarea from "./TexTarea.vue";
 import PhoneInternational from "./PhoneInternational.vue";
+import MoreFieldsAccordion from "./MoreFieldsAccordion.vue";
 // @deprecated will be remove before 2x. use MoreFieldsIconDescription
 import MoreFieldsIconwTextidget from "./MoreFieldsIconwTextidget.vue";
 import MoreFieldsIconDescription from "./MoreFieldsIconwDescriptionidget.vue";
@@ -142,6 +143,9 @@ export default {
         break;
       case "more_fields_icon_text_description_widget":
         template = MoreFieldsIconDescription;
+        break;
+      case "more_fields_accordion_field_widget":
+        template = MoreFieldsAccordion;
         break;
       case "phone_international_widget":
         template = PhoneInternational;
