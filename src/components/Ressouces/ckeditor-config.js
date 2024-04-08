@@ -14,30 +14,11 @@ export default {
       toolbar: [
         {
           name: "basicstyles",
-          items: [
-            "Bold",
-            "Italic",
-            "Underline",
-            "Strike",
-            "Subscript",
-            "Superscript",
-            "-",
-            "CopyFormatting",
-            "RemoveFormat",
-          ],
+          items: ["Bold", "Italic", "Underline", "Strike", "Subscript", "Superscript", "-", "CopyFormatting", "RemoveFormat"],
         },
         {
           name: "clipboard",
-          items: [
-            "Cut",
-            "Copy",
-            "Paste",
-            "PasteText",
-            "PasteFromWord",
-            "-",
-            "Undo",
-            "Redo",
-          ],
+          items: ["Cut", "Copy", "Paste", "PasteText", "PasteFromWord", "-", "Undo", "Redo"],
         },
         {
           name: "document",
@@ -98,17 +79,7 @@ export default {
         { name: "links", items: ["Link", "Unlink", "Anchor"] },
         {
           name: "insert",
-          items: [
-            "Image",
-            "QuickUploaderUpload",
-            "Flash",
-            "Table",
-            "HorizontalRule",
-            "Smiley",
-            "SpecialChar",
-            "PageBreak",
-            "Iframe",
-          ],
+          items: ["Image", "QuickUploaderUpload", "Flash", "Table", "HorizontalRule", "Smiley", "SpecialChar", "PageBreak", "Iframe"],
         },
         "/",
         { name: "styles", items: ["Styles", "Format", "Font", "FontSize"] },
@@ -210,8 +181,10 @@ export default {
     //     date.getTime()
     // );
     // humm.
-    if (request.config)
+    if (request.config) {
+      if (request.config.getBaseUrl) console.log("");
       CKEDITOR.config.quickuploaderUploadUrl = request.config.getBaseUrl();
+    }
   },
   // Le parent surchargera cette partie enfin de fournir ces styles.
   /**
@@ -241,9 +214,7 @@ export default {
    */
   editorUrl() {
     //return "https://cdn.ckeditor.com/4.20.1/standard/ckeditor.js";
-    const urlEdit =
-      request.config.getBaseUrl() +
-      "/themes/contrib/wb_universe/ckeditor/ckeditor.js";
+    const urlEdit = request.config.getBaseUrl() + "/themes/contrib/wb_universe/ckeditor/ckeditor.js";
     console.log("urlEdit : ", urlEdit);
     return urlEdit;
   },
