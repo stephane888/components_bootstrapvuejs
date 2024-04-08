@@ -245,16 +245,24 @@ export default {
       if (this.model[this.field.name] && this.model[this.field.name].length) {
         this.toUplode = [];
         this.model[this.field.name].forEach((item) => {
+          console.log("item image:", item);
           if (request.config) {
             const toUplode = {
               url: "",
               target_id: item.target_id,
             };
             if (item.target_id)
-              request.getImageUrl(item.target_id).then((resp) => {
-                toUplode.url = resp.data;
-                this.toUplode.push(toUplode);
-              });
+              if (this.field.type === "hbk_file_generic") {
+                request.getVideoThumbUrl(item.target_id).then((resp) => {
+                  toUplode.url = resp.data;
+                  this.toUplode.push(toUplode);
+                });
+              } else {
+                request.getImageUrl(item.target_id).then((resp) => {
+                  toUplode.url = resp.data;
+                  this.toUplode.push(toUplode);
+                });
+              }
           }
         });
       }

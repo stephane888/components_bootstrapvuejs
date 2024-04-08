@@ -111,6 +111,7 @@ export default {
   // },
   mounted() {
     this.loadDefaults();
+    this.asyncFind("", true);
   },
   methods: {
     /**
@@ -163,8 +164,8 @@ export default {
      *
      * @param {*} search
      */
-    asyncFind(search) {
-      if (search.length >= 2) {
+    asyncFind(search, init = false) {
+      if (search.length >= 2 || init) {
         // Doit etre dynamique.
         let vocabulary = this.getFistVocab();
         const terms = new termsTaxo(vocabulary);

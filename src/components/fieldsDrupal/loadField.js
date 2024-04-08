@@ -25,6 +25,7 @@ import iconTextWidget from "./IconTextWidget.vue";
 import chartWidgetType from "./ChartWidgetType.vue";
 import TexTarea from "./TexTarea.vue";
 import PhoneInternational from "./PhoneInternational.vue";
+import MoreFieldsAccordion from "./MoreFieldsAccordion.vue";
 // @deprecated will be remove before 2x. use MoreFieldsIconDescription
 import MoreFieldsIconwTextidget from "./MoreFieldsIconwTextidget.vue";
 import MoreFieldsIconDescription from "./MoreFieldsIconwDescriptionidget.vue";
@@ -143,6 +144,9 @@ export default {
       case "more_fields_icon_text_description_widget":
         template = MoreFieldsIconDescription;
         break;
+      case "more_fields_accordion_field_widget":
+        template = MoreFieldsAccordion;
+        break;
       case "phone_international_widget":
         template = PhoneInternational;
         break;
@@ -152,8 +156,13 @@ export default {
     }
     return template;
   },
-  getImageUrl(fid, style = "medium") {
-    return this.config.get("/filesmanager/image/" + fid + "/" + style);
+  getImageUrl(fid, style = "medium", param = []) {
+    const url = this.config.get("/filesmanager/image/" + fid + "/" + style);
+    console.log("image url: ", url);
+    return url;
+  },
+  getVideoThumbUrl(fid, style = "medium") {
+    return this.config.get("/filesmanager/hbk_generic/" + fid + "/" + style);
   },
   getRules(field) {
     const rules = {};
