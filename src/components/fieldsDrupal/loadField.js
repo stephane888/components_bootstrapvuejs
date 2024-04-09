@@ -106,8 +106,9 @@ export default {
         template = ExperienceTypeVue;
         break;
       case "entity_reference":
-      case "entity_reference_autocomplete":
       case "select2_entity_reference":
+      case "entity_reference_autocomplete":
+      case "entity_reference_autocomplete_tags":
         template = MultiSelect;
         break;
       case "value_niveau_type":

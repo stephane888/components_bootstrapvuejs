@@ -11,11 +11,13 @@
           label="text"
           track-by="text"
           :show-no-results="true"
+          :taggable="auto_create"
           :show-labels="false"
           :loading="isLoading"
           :multiple="cardinality"
           :allow-empty="true"
           @search-change="asyncFind"
+          @tag="createElement"
         >
           <template slot="noResult">
             <span class="option__title">
@@ -83,6 +85,9 @@ export default {
       } else {
         return false;
       }
+    },
+    auto_create() {
+      return this.field.definition_settings.handler_settings.auto_create;
     },
     /**
      * @see https://skirtles-code.github.io/vue-examples/patterns/computed-v-model.html
@@ -206,7 +211,6 @@ export default {
             .then(() => {
               this.options = terms.getOptions();
               this.isLoading = false;
-              console.log(this.options);
             })
             .catch((e) => {
               this.isLoading = false;
@@ -214,6 +218,31 @@ export default {
             });
         }
       }
+    },
+    /**
+     *
+     * @param {string} newElement
+     */
+    createElement(newElement) {
+      const entity = {
+        value: { name: newElement },
+        entity_type_id: this.field.definition_settings.target_type,
+      };
+
+      const action = this.namespaceStore
+        ? this.namespaceStore + "/saveEntity"
+        : "saveEntity";
+
+      this.$store
+        .dispatch(action, entity)
+        .then((response) => {
+          this.value_select.push({
+            text: newElement,
+            value: response.data.id,
+          });
+          this.updateValue(this.value_select);
+        })
+        .catch((e) => console.log("error: ", e));
     },
     /**
      * cette fonction est utiliser pour mettre à jour les données dans l'entité.

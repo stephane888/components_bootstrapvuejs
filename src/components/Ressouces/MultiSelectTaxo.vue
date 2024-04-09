@@ -6,6 +6,7 @@
           v-model="value_computed"
           :options="options"
           :custom-label="nameWithLang"
+          :taggable="auto_create"
           placeholder=""
           label="text"
           track-by="text"
@@ -15,6 +16,7 @@
           :multiple="cardinality"
           :allow-empty="true"
           @search-change="asyncFind"
+          @tag="createElement"
         >
           <template slot="noResult">
             <span class="option__title">
@@ -77,6 +79,9 @@ export default {
       } else {
         return false;
       }
+    },
+    auto_create() {
+      return this.field.definition_settings.handler_settings.auto_create;
     },
     /**
      * @see https://skirtles-code.github.io/vue-examples/patterns/computed-v-model.html
@@ -162,6 +167,34 @@ export default {
     },
     /**
      *
+     * @param {string} newElement
+     */
+    createElement(newElement) {
+      const entity = {
+        value: {
+          name: newElement,
+          vid: this.field.definition_settings.bundle_entity_type_id,
+        },
+        entity_type_id: this.field.definition_settings.target_type,
+      };
+
+      const action = this.namespaceStore
+        ? this.namespaceStore + "/saveEntity"
+        : "saveEntity";
+
+      this.$store
+        .dispatch(action, entity)
+        .then((response) => {
+          this.value_select.push({
+            text: newElement,
+            value: response.data.id,
+          });
+          this.updateValue(this.value_select);
+        })
+        .catch((e) => console.log("error: ", e));
+    },
+    /**
+     *
      * @param {*} search
      */
     asyncFind(search, init = false) {
@@ -176,7 +209,6 @@ export default {
         });
       }
     },
-
     nameWithLang({ text }) {
       return `${text}`;
     },
