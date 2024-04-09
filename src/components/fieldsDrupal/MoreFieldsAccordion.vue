@@ -4,11 +4,10 @@
 <template>
   <div :class="classCss" class="mb-4">
     <ValidationProvider v-slot="v" :name="fullname" :rules="getRules()">
+      <label class="pt-2" v-html="field.label"></label>
       <div class="accordion">
         <div class="options-config">
-          <b-form-checkbox v-model="select_edit_mode" switch size="md">
-            Edit code (Pro)
-          </b-form-checkbox>
+          <b-form-checkbox v-model="select_edit_mode" switch size="md"> Edit code (Pro) </b-form-checkbox>
         </div>
         <div v-for="(item, idx) in editorData" :key="idx" class="mb-2">
           <div role="tab">
@@ -16,29 +15,15 @@
               {{ item.title | truncate(20, "...   ") }}
             </b-button>
           </div>
-          <b-collapse
-            :id="fullname + '-' + idx"
-            :visible="idx == 0"
-            accordion="my-accordion"
-            role="tabpanel"
-          >
+          <b-collapse :id="fullname + '-' + idx" :visible="idx == 0" accordion="my-accordion" role="tabpanel">
             <b-card-body>
               <b-form-group>
                 <div class="field-item-value title">
-                  <div
-                    class="accordion-header d-flex justify-content-between align-item-center"
-                  >
+                  <div class="accordion-header d-flex justify-content-between align-item-center">
                     <label :for="fullname + '-title-' + idx">
                       {{ formSettings.title.fieldName }}
                     </label>
-                    <b-button
-                      v-if="cardinality"
-                      v-b-tooltip.v-danger="' Supprimer '"
-                      variant="outline-danger"
-                      size="sm"
-                      class="p-0 border-0 elt-remove"
-                      @click="remove(idx)"
-                    >
+                    <b-button v-if="cardinality" v-b-tooltip.v-danger="' Supprimer '" variant="outline-danger" size="sm" class="p-0 border-0 elt-remove" @click="remove(idx)">
                       <b-icon icon="trash" font-scale="1"></b-icon>
                     </b-button>
                   </div>
@@ -90,15 +75,8 @@
                     @change="input($event, idx, 'description ')"
                   ></b-form-textarea>
                 </div>
-                <div
-                  v-if="v.errors && v.errors.length > 0"
-                  class="text-danger my-2"
-                >
-                  <small
-                    v-for="(error, ii) in v.errors"
-                    :key="ii"
-                    class="d-block"
-                  >
+                <div v-if="v.errors && v.errors.length > 0" class="text-danger my-2">
+                  <small v-for="(error, ii) in v.errors" :key="ii" class="d-block">
                     {{ error }}
                   </small>
                 </div>
@@ -107,9 +85,7 @@
           </b-collapse>
         </div>
         <div v-if="cardinality">
-          <b-button size="sm" variant="info" @click.prevent="addField">
-            Add more
-          </b-button>
+          <b-button size="sm" variant="info" @click.prevent="addField"> Add more </b-button>
         </div>
       </div>
     </ValidationProvider>
@@ -133,9 +109,7 @@ export default {
       var node = document.createElement("div");
       node.innerHTML = text;
       var content = node.textContent;
-      return content.length > length
-        ? content.slice(0, length) + clamp
-        : content;
+      return content.length > length ? content.slice(0, length) + clamp : content;
     },
   },
   props: {
@@ -179,8 +153,7 @@ export default {
   },
   computed: {
     editorConfig() {
-      var extraPlugins =
-        "quickuploader, codesnippet, print,format,font,colorbutton,justify,image,filebrowser,stylesheetparser";
+      var extraPlugins = "quickuploader, codesnippet, print,format,font,colorbutton,justify,image,filebrowser,stylesheetparser";
       return {
         extraPlugins: extraPlugins,
         ...this.preEditorConfig,

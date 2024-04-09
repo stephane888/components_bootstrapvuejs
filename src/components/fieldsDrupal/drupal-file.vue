@@ -18,28 +18,9 @@
     </ValidationProvider>
     <div class="previews">
       <div v-for="(fil, i) in toUplode" :key="i" class="item d-flex w-100">
-        <b-img
-          :src="fil.url"
-          fluid
-          alt="Fluid image"
-          thumbnail
-          class="img-preview"
-        ></b-img>
-        <b-icon
-          v-b-tooltip.v-danger="' Supprimer l\'image '"
-          icon="x"
-          font-scale="2"
-          variant="danger"
-          class="icon-delete"
-          @click="delete_file(i, fil)"
-        ></b-icon>
-        <ValidationProvider
-          v-if="field.definition_settings.alt_field"
-          v-slot="v"
-          :rules="getAltRules"
-          :name="field.name + '_alt_' + i"
-          class="align-self-center flex-grow-1"
-        >
+        <b-img :src="fil.url" fluid alt="Fluid image" thumbnail class="img-preview"></b-img>
+        <b-icon v-b-tooltip.v-danger="' Supprimer l\'image '" icon="x" font-scale="2" variant="danger" class="icon-delete" @click="delete_file(i, fil)"></b-icon>
+        <ValidationProvider v-if="field.definition_settings.alt_field" v-slot="v" :rules="getAltRules()" :name="field.name + '_alt_' + i" class="align-self-center flex-grow-1">
           <b-form-input
             v-model="alts[i]"
             :state="getValidationState(v)"
@@ -102,18 +83,13 @@ export default {
       return this.parentName + this.field.name;
     },
     file_extensions() {
-      if (
-        this.field.definition_settings &&
-        this.field.definition_settings.file_extensions
-      ) {
+      if (this.field.definition_settings && this.field.definition_settings.file_extensions) {
         var extensions = "";
-        this.field.definition_settings.file_extensions
-          .split(" ")
-          .forEach((item) => {
-            extensions += ".";
-            extensions += item.trim();
-            extensions += ", ";
-          });
+        this.field.definition_settings.file_extensions.split(" ").forEach((item) => {
+          extensions += ".";
+          extensions += item.trim();
+          extensions += ", ";
+        });
         extensions.trim();
         return extensions;
       } else return "";
@@ -155,9 +131,7 @@ export default {
      * @return {String} rules for the alt field
      */
     getAltRules() {
-      return this.field.definition_settings.alt_field_required
-        ? "required"
-        : "";
+      return this.field.definition_settings.alt_field_required ? "required" : "";
     },
     /**
      *
@@ -166,8 +140,7 @@ export default {
     previewImage(files) {
       // ceci permet de faire patienter l'utilisateur, le temps de traitement de l'image.
       setTimeout(() => {
-        if (this.namespaceStore)
-          this.$store.commit(this.namespaceStore + "/DISABLE_RUNNING");
+        if (this.namespaceStore) this.$store.commit(this.namespaceStore + "/DISABLE_RUNNING");
         else this.$store.commit("DISABLE_RUNNING");
       }, 1000);
       // preview
@@ -209,8 +182,7 @@ export default {
         request.config
           .postFile("/filesmanager/post", files)
           .then((resp) => {
-            if (this.namespaceStore)
-              this.$store.commit(this.namespaceStore + "/ACTIVE_RUNNING");
+            if (this.namespaceStore) this.$store.commit(this.namespaceStore + "/ACTIVE_RUNNING");
             else this.$store.commit("ACTIVE_RUNNING");
             reader.onload = (read) => {
               this.toUplode.push({
@@ -232,9 +204,7 @@ export default {
       }
     },
     setValue(vals) {
-      const storeAction = this.namespaceStore
-        ? this.namespaceStore + "/setValue"
-        : "setValue";
+      const storeAction = this.namespaceStore ? this.namespaceStore + "/setValue" : "setValue";
 
       this.$store.dispatch(storeAction, {
         value: vals,
@@ -268,30 +238,17 @@ export default {
       }
     },
     updateValue(property, index, value) {
-      const storeAction = this.namespaceStore
-        ? this.namespaceStore + "/getValue"
-        : "getValue";
+      const storeAction = this.namespaceStore ? this.namespaceStore + "/getValue" : "getValue";
       const vals = this.model[this.field.name];
       vals[index][property] = value;
       this.setValue(vals);
     },
     delete_file(index, file) {
-      if (
-        file.target_id &&
-        this.field.definition_settings &&
-        this.field.definition_settings.module_name
-      ) {
-        request.config
-          .get(
-            "/filesmanager/delete/" +
-              file.target_id +
-              "/" +
-              this.field.definition_settings.module_name
-          )
-          .then(() => {
-            this.toUplode.splice(index, 1);
-            this.removeValue(file.target_id);
-          });
+      if (file.target_id && this.field.definition_settings && this.field.definition_settings.module_name) {
+        request.config.get("/filesmanager/delete/" + file.target_id + "/" + this.field.definition_settings.module_name).then(() => {
+          this.toUplode.splice(index, 1);
+          this.removeValue(file.target_id);
+        });
       }
     },
     removeValue(target_id) {

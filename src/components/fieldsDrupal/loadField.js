@@ -12,7 +12,7 @@ import drupalTextLong from "./TextareaCkeditor.vue";
 import htmlRender from "./html-render.vue";
 import drupalFile from "./drupal-file.vue";
 import ExperienceTypeVue from "./ExperienceType.vue";
-import MultiSelect from "./MultiSelect";
+import MultiSelect from "./MultiSelect.vue";
 import ValueNiveau from "./ValueNiveau.vue";
 import DrupalEmailVue from "./DrupalEmail.vue";
 import DrupalCheckbox from "./DrupalCheckbox.vue";
