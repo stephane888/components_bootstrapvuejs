@@ -1,4 +1,13 @@
-// pa definit dans bootstrap 5.
+@use "@stephane888/wbu-atomique/scss/wbu-ressources-clean.scss" as *;
+.cmp_b_vuejs_container {
+  .card-body {
+    padding: $wbu-margin * 0.5;
+  }
+}
+
+/**
+ * Style non cdefinie sur bootstrap5.
+ */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -9,4 +18,7 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+.modal-open {
+  overflow: hidden;
 }
