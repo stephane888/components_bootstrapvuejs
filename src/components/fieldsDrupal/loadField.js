@@ -36,6 +36,7 @@ import SimpleCard from "../Containers/SimpleCard.vue";
 import AccordionCard from "../Containers/AccordionCard.vue";
 
 // import style
+import "../../assets/scss/defualt-style.scss";
 import "../../assets/scss/container-field.scss";
 export default {
   debug: false,

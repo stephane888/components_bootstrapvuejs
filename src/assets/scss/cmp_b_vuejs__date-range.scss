@@ -1,0 +1,17 @@
+.cmp_b_vuejs_container {
+  .cmp_b_vuejs__date-range {
+    .input-date {
+      .btn {
+        padding: 1rem;
+      }
+      label {
+        white-space: nowrap;
+      }
+    }
+    .input-time {
+      width: 100%;
+      max-width: 100px;
+      padding-right: 0.5rem;
+    }
+  }
+}

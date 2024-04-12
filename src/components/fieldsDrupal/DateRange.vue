@@ -7,11 +7,12 @@ Remplir la date par defaut avec vuejs n'est pas efficace et peux entrainer de ma
       <label for="input-date-fin">
         {{ field.label }}
       </label>
-      <b-row class="date-range">
+      <b-row class="cmp_b_vuejs__date-range">
         <b-col md="6">
           <b-input-group>
             <b-form-datepicker
               v-model="date.value"
+              class="input-date"
               type="text"
               placeholder="Selectionner une date"
               required
@@ -35,7 +36,7 @@ Remplir la date par defaut avec vuejs n'est pas efficace et peux entrainer de ma
             <b-input-group-append v-if="field.type != 'datetime_default'">
               <b-form-timepicker
                 v-model="date.hour_begin"
-                button-only
+                :button-only="true"
                 right
                 show-seconds
                 locale="fr"
@@ -49,6 +50,7 @@ Remplir la date par defaut avec vuejs n'est pas efficace et peux entrainer de ma
           <b-input-group>
             <b-form-datepicker
               v-model="date.end_value"
+              class="input-date"
               type="text"
               placeholder="Selectionner une date"
               required
@@ -60,24 +62,9 @@ Remplir la date par defaut avec vuejs n'est pas efficace et peux entrainer de ma
               }"
               @input="date_change"
             ></b-form-datepicker>
-            <b-form-input
-              :id="'e-' + idHtml"
-              v-model="date.hour_end"
-              type="text"
-              placeholder="HH:mm:ss"
-              class="input-time"
-              @input="date_change"
-            ></b-form-input>
+            <b-form-input :id="'e-' + idHtml" v-model="date.hour_end" type="text" placeholder="HH:mm:ss" class="input-time" @input="date_change"></b-form-input>
             <b-input-group-append>
-              <b-form-timepicker
-                v-model="date.hour_end"
-                button-only
-                right
-                show-seconds
-                locale="fr"
-                :aria-controls="'e-' + idHtml"
-                @input="date_change"
-              ></b-form-timepicker>
+              <b-form-timepicker v-model="date.hour_end" button-only right show-seconds locale="fr" :aria-controls="'e-' + idHtml" @input="date_change"></b-form-timepicker>
             </b-input-group-append>
           </b-input-group>
         </b-col>
@@ -94,6 +81,7 @@ Remplir la date par defaut avec vuejs n'est pas efficace et peux entrainer de ma
 
 <script>
 import { ValidationProvider } from "vee-validate";
+import "../../assets/scss/cmp_b_vuejs__date-range.scss";
 import "./vee-validation-rules";
 import loadField from "./loadField";
 export default {
@@ -181,11 +169,7 @@ export default {
      */
     getValue() {
       // console.log("date range : ", this.model[this.field.name]);
-      if (
-        this.model[this.field.name] &&
-        this.model[this.field.name][0] &&
-        this.model[this.field.name][0].value
-      ) {
+      if (this.model[this.field.name] && this.model[this.field.name][0] && this.model[this.field.name][0].value) {
         const D_b = this.checkValue(this.model[this.field.name][0].value);
         const val = { value: D_b.date, hour_begin: D_b.hour };
         if (this.field.type == "daterange_default") {
@@ -194,8 +178,7 @@ export default {
           val["hour_end"] = D_f.hour;
         }
         return val;
-      } else
-        return { value: null, end_value: null, hour_begin: "", hour_end: "" };
+      } else return { value: null, end_value: null, hour_begin: "", hour_end: "" };
       // pas necessaire ( car entrainne des mauvaises données )
       // else return this.currentDate();
     },
@@ -222,18 +205,8 @@ export default {
       date.setTime(parseInt(DateTimeStamp) * 1000);
       let month = parseInt(date.getMonth()) + 1;
       return {
-        date:
-          date.getFullYear() +
-          "-" +
-          ("0" + month).slice(-2) +
-          "-" +
-          date.getDate(),
-        hour:
-          ("0" + date.getHours()).slice(-2) +
-          ":" +
-          ("0" + date.getMinutes()).slice(-2) +
-          ":" +
-          ("0" + date.getSeconds()).slice(-2),
+        date: date.getFullYear() + "-" + ("0" + month).slice(-2) + "-" + date.getDate(),
+        hour: ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2) + ":" + ("0" + date.getSeconds()).slice(-2),
       };
     },
 
@@ -246,14 +219,11 @@ export default {
       let month = parseInt(date.getMonth()) + 1;
       const val = {
         value: date.getFullYear() + "-" + month + "-" + date.getDate(),
-        hour_begin:
-          date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+        hour_begin: date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
       };
       if (this.field.type == "daterange_default") {
-        val["end_value"] =
-          date.getFullYear() + "-" + month + "-" + date.getDate();
-        val["hour_end"] =
-          date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+        val["end_value"] = date.getFullYear() + "-" + month + "-" + date.getDate();
+        val["hour_end"] = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
       }
       return val;
     },
@@ -263,18 +233,13 @@ export default {
     date_change() {
       const vals = [];
       if (this.date.value) {
-        const dateDebut = new Date(
-          this.date.value + " " + this.date.hour_begin
-        );
-        if (this.checkFormatDate == "string")
-          vals.push({ value: this.date.value + "T" + this.date.hour_begin });
+        const dateDebut = new Date(this.date.value + " " + this.date.hour_begin);
+        if (this.checkFormatDate == "string") vals.push({ value: this.date.value + "T" + this.date.hour_begin });
         else vals.push({ value: dateDebut.getTime() / 1000 });
       }
       //
       if (this.date.end_value && this.field.type == "daterange_default") {
-        const dateFin = new Date(
-          this.date.end_value + " " + this.date.hour_end
-        );
+        const dateFin = new Date(this.date.end_value + " " + this.date.hour_end);
         if (this.checkFormatDate == "string")
           vals.push({
             end_value: this.date.end_value + "T" + this.date.hour_end,
@@ -286,12 +251,3 @@ export default {
   },
 };
 </script>
-<style lang="scss" scoped>
-.date-range {
-  .input-time {
-    width: 100%;
-    max-width: 85px;
-    padding-right: 0.5rem;
-  }
-}
-</style>

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="cmp_b_vuejs_container">
     <b-card :class="classEntity">
       <template #header>
         <h4 class="mb-0">{{ entity.label }}</h4>

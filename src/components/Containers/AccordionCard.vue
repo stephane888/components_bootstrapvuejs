@@ -1,40 +1,17 @@
 <template>
-  <b-card :class="classEntity" no-body>
-    <b-card-header
-      header-tag="header"
-      class="p-1"
-      role="tab"
-      header-bg-variant="info"
-      header-text-variant="light"
-    >
-      <div
-        v-b-toggle="idAcordion"
-        class="align-items-center d-flex justify-content-between"
-      >
+  <b-card :class="classEntity" no-body class="cmp_b_vuejs_container">
+    <b-card-header header-tag="header" class="p-1" role="tab" header-bg-variant="info" header-text-variant="light">
+      <div v-b-toggle="idAcordion" class="align-items-center d-flex justify-content-between">
         <h4 class="mb-0 px-4 py-2">
           {{ entity.label }}
         </h4>
         <div class="px-4">
-          <b-icon
-            v-if="!isOpen"
-            icon="chevron-double-down"
-            class="light"
-            font-scale="1.2"
-          ></b-icon>
-          <b-icon
-            v-if="isOpen"
-            icon="chevron-double-up"
-            class="light"
-            font-scale="1.2"
-          ></b-icon>
+          <b-icon v-if="!isOpen" icon="chevron-double-down" class="light" font-scale="1.2"></b-icon>
+          <b-icon v-if="isOpen" icon="chevron-double-up" class="light" font-scale="1.2"></b-icon>
         </div>
       </div>
     </b-card-header>
-    <b-collapse
-      :id="idAcordion"
-      :accordion="accordionContainer"
-      role="tabpanel"
-    >
+    <b-collapse :id="idAcordion" :accordion="accordionContainer" role="tabpanel">
       <b-card-body>
         <slot></slot>
       </b-card-body>
