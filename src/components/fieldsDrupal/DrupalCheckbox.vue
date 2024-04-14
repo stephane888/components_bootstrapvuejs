@@ -2,27 +2,12 @@
 On ajoute type-field-render et type-field-drupal car on a bc de mal a ce retrouver sur le rendu html.
 -->
 <template>
-  <div
-    :class="classCss"
-    type-field-render="DrupalCheckbox"
-    :type-field-drupal="field.type"
-  >
+  <div :class="classCss" type-field-render="DrupalCheckbox" :type-field-drupal="field.type">
     <div class="field-item-value">
       <ValidationProvider v-slot="v" :name="fullname" :rules="getRules()">
         <!-- cas de selection unique on/off -->
-        <b-form-group
-          v-if="field.type == 'boolean_checkbox'"
-          :label="field.label"
-          :description="field.description"
-          :class="size ? 'size-' + size : ''"
-        >
-          <b-form-checkbox
-            v-model="selected"
-            :name="fullname"
-            :size="size"
-            switch
-            @change="input"
-          >
+        <b-form-group v-if="field.type == 'boolean_checkbox'" :label="field.label" :description="field.description" :class="(size ? 'size-' + size : '', 'form-check')">
+          <b-form-checkbox v-model="selected" :name="fullname" :size="size" @change="input">
             {{ field.label }}
           </b-form-checkbox>
         </b-form-group>
@@ -44,17 +29,9 @@ On ajoute type-field-render et type-field-drupal car on a bc de mal a ce retrouv
           ></b-form-checkbox-group>
         </b-form-group>
         <!-- Utiliser par des rendu avec image de selection -->
-        <b-form-group
-          v-else
-          :label="field.label"
-          :name="fullname"
-          :class="size ? 'size-' + size : ''"
-        >
+        <b-form-group v-else :label="field.label" :name="fullname" :class="size ? 'size-' + size : ''">
           <div class="fieldset-wrapper">
-            <div
-              v-if="field.settings && field.settings.list_options"
-              class="checkbox"
-            >
+            <div v-if="field.settings && field.settings.list_options" class="checkbox">
               <b-form-radio
                 v-for="(option, o) in field.settings.list_options"
                 :key="o"
@@ -67,24 +44,12 @@ On ajoute type-field-render et type-field-drupal car on a bc de mal a ce retrouv
               >
                 <transition name="fade" mode="out-in">
                   <div>
-                    <b-img
-                      thumbnail
-                      fluid
-                      :src="option.image_url"
-                      alt="Image 1"
-                      v-if="option.image_url"
-                    ></b-img>
+                    <b-img thumbnail fluid :src="option.image_url" alt="Image 1" v-if="option.image_url"></b-img>
                     <svgLoader v-if="!option.image_url"></svgLoader>
                   </div>
                 </transition>
                 <div class="mt-5">{{ option.label }}</div>
-                <div
-                  v-if="
-                    option.description.value && option.description.value !== ''
-                  "
-                  class="mt-5 text-hover"
-                  v-html="option.description.value"
-                ></div>
+                <div v-if="option.description.value && option.description.value !== ''" class="mt-5 text-hover" v-html="option.description.value"></div>
               </b-form-radio>
             </div>
             <div v-if="v.errors" class="text-danger my-2">
@@ -96,6 +61,7 @@ On ajoute type-field-render et type-field-drupal car on a bc de mal a ce retrouv
         </b-form-group>
       </ValidationProvider>
     </div>
+    <pre> field : {{ field }} </pre>
   </div>
 </template>
 
@@ -169,10 +135,7 @@ export default {
     },
   },
   mounted() {
-    if (
-      this.field.definition_settings &&
-      this.field.definition_settings.target_type
-    ) {
+    if (this.field.definition_settings && this.field.definition_settings.target_type) {
       this.key_value = "target_id";
     } else this.key_value = "value";
     this.getImage();
@@ -196,10 +159,7 @@ export default {
       var value = false;
       switch (this.field.type) {
         case "boolean_checkbox":
-          if (
-            this.model[this.field.name][0] &&
-            this.model[this.field.name][0].value
-          ) {
+          if (this.model[this.field.name][0] && this.model[this.field.name][0].value) {
             value = true;
           }
           break;

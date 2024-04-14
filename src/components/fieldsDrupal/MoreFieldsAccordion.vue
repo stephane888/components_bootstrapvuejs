@@ -11,8 +11,8 @@
         </div>
         <div v-for="(item, idx) in editorData" :key="idx" class="mb-2">
           <div role="tab">
-            <b-button v-b-toggle="fullname + '-' + idx" block variant="info">
-              {{ item.title | truncate(20, "...   ") }}
+            <b-button v-b-toggle="fullname + '-' + idx" block variant="secondary" class="w-100 text-white fw-bold">
+              Block: {{ idx }} ( <i>{{ item.title | truncate(20, "...   ") }}</i> )
             </b-button>
           </div>
           <b-collapse :id="fullname + '-' + idx" :visible="idx == 0" accordion="my-accordion" role="tabpanel">
