@@ -13,23 +13,19 @@
           :show-no-results="true"
           :show-labels="false"
           :loading="isLoading"
-          :multiple="cardinality"
+          :multiple="isMultiple"
           :allow-empty="true"
           @search-change="asyncFind"
           @tag="createElement"
         >
           <template slot="noResult">
-            <span class="option__title">
-              Aucun contenu ne correspond à votre recherche
-            </span>
+            <span class="option__title"> Aucun contenu ne correspond à votre recherche </span>
           </template>
           <template slot="placeholder">
             <span class="option__title"> Aucun contenu ... </span>
           </template>
           <template slot="noOptions">
-            <span class="option__title">
-              Saisir un ou plusieurs caractères ...
-            </span>
+            <span class="option__title"> Saisir un ou plusieurs caractères ... </span>
           </template>
         </multiselect>
         <div class="text-danger">
@@ -39,6 +35,11 @@
         </div>
       </div>
     </b-form-group>
+    <!-- <div v-if="field.name == 'field_formats'">
+      <pre> field : {{ field }} </pre>
+      <pre> value_computed : {{ value_computed }} </pre>
+      <pre> value_select : {{ value_select }} </pre>
+    </div> -->
   </ValidationProvider>
 </template>
 
@@ -73,15 +74,16 @@ export default {
     fullname() {
       return this.parentName + this.field.name;
     },
-    cardinality() {
-      if (this.field.cardinality === -1) {
+    isMultiple() {
+      if (this.field.cardinality > 1 || this.field.cardinality === -1) {
         return true;
       } else {
         return false;
       }
     },
     auto_create() {
-      return this.field.definition_settings.handler_settings.auto_create;
+      if (this.field.definition_settings && this.field.definition_settings.handler_settings) return this.field.definition_settings.handler_settings.auto_create;
+      else return false;
     },
     /**
      * @see https://skirtles-code.github.io/vue-examples/patterns/computed-v-model.html
@@ -101,7 +103,7 @@ export default {
   //    * @param {*} val
   //    */
   //   value_select(val) {
-  //     if (this.cardinality) {
+  //     if (this.isMultiple) {
   //       const vals = [];
   //       val.forEach((item) => {
   //         vals.push({ target_id: item.value });
@@ -120,7 +122,7 @@ export default {
   },
   methods: {
     /**
-     *
+     * Recupere un terme.
      * @param {*} tid
      */
     getTermByTid(tid) {
@@ -132,10 +134,12 @@ export default {
         .getValueByTid(tid)
         .then(() => {
           const options = terms.getOptions();
-          this.options = options;
-          if (this.cardinality) {
-            this.value_select = options;
-          } else if (options[0]) this.value_select = options[0];
+          if (options) {
+            this.options.push(options[0]);
+            if (this.isMultiple) {
+              this.value_select.push(options[0]);
+            } else if (options[0]) this.value_select = options[0];
+          }
           this.isLoading = false;
         })
         .catch(() => {
@@ -146,6 +150,12 @@ export default {
      *
      */
     loadDefaults() {
+      // init value before load terms.
+      if (this.isMultiple) {
+        this.value_select = [];
+      } else this.value_select = null;
+      this.options = [];
+      // Load terms names.
       this.model[this.field.name].forEach((item) => {
         this.getTermByTid(item.target_id);
       });
@@ -155,12 +165,8 @@ export default {
      */
     getFistVocab() {
       if (this.field.definition_settings.handler_settings.target_bundles) {
-        const keys = Object.keys(
-          this.field.definition_settings.handler_settings.target_bundles
-        );
-        return this.field.definition_settings.handler_settings.target_bundles[
-          keys[0]
-        ];
+        const keys = Object.keys(this.field.definition_settings.handler_settings.target_bundles);
+        return this.field.definition_settings.handler_settings.target_bundles[keys[0]];
       } else if (this.field.definition_settings.target_type) {
         return this.field.definition_settings.target_type;
       } else return null;
@@ -173,22 +179,25 @@ export default {
       const entity = {
         value: {
           name: newElement,
-          vid: this.field.definition_settings.bundle_entity_type_id,
+          vid: this.getFistVocab(),
         },
         entity_type_id: this.field.definition_settings.target_type,
       };
-
-      const action = this.namespaceStore
-        ? this.namespaceStore + "/saveEntity"
-        : "saveEntity";
-
+      const action = this.namespaceStore ? this.namespaceStore + "/saveEntity" : "saveEntity";
       this.$store
         .dispatch(action, entity)
         .then((response) => {
-          this.value_select.push({
-            text: newElement,
-            value: response.data.id,
-          });
+          if (this.isMultiple) {
+            if (!this.value_select) this.value_select = [];
+            this.value_select.push({
+              text: newElement,
+              value: response.data.id,
+            });
+          } else
+            this.value_select = {
+              text: newElement,
+              value: response.data.id,
+            };
           this.updateValue(this.value_select);
         })
         .catch((e) => console.log("error: ", e));
@@ -236,7 +245,7 @@ export default {
     },
     updateValue(val) {
       this.value_select = val;
-      if (this.cardinality) {
+      if (this.isMultiple) {
         const vals = [];
         if (val && val.length)
           val.forEach((item) => {
