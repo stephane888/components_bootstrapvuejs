@@ -101,7 +101,7 @@ export default {
    */
   prepareSaveEntities(store, datas, suivers, ActionDomainId = false) {
     return new Promise((resolu, rejecte) => {
-      //console.log("prepareSaveEntities");
+      // console.log("prepareSaveEntities");
       // on vide les derniers ids.
       this.lastIdsEntity = [];
       const updateDomainId = (entity) => {
@@ -241,12 +241,12 @@ export default {
           // Si le champs contient des données,
           // on parcourt chacune des entrées.
           if (datas[fieldname] && datas[fieldname].length > 0) {
+            var has_target_revision_id = false;
             //console.log("entity[fieldname][0] : ", entity[fieldname][0], "\n : ", entity);
             // on verifie s'il ya des entrées supplementaire
-            if (entity[fieldname][0]) {
-              var has_target_revision_id = false;
+            // fieldname n'existe pas forcement, ( par exmple le cas de menu ).
+            if (entity[fieldname] && entity[fieldname][0]) {
               const keys = Object.keys(entity[fieldname][0]);
-              //
               if (keys.includes("target_revision_id")) {
                 has_target_revision_id = true;
               }
@@ -258,8 +258,9 @@ export default {
             // Pour chaque champs, on cree les contenus et on recupere les ids.
             loopItem(datas[fieldname], 0, [], has_target_revision_id)
               .then((resp) => {
-                //console.log(" loopFieldEntity result of loopItem : ", resp);
-                entity[fieldname] = resp;
+                // console.log(" loopFieldEntity result of loopItem : ", resp);
+                // le champs fieldname n'existe pas forcement, example le cas des menus.
+                if (entity[fieldname]) entity[fieldname] = resp;
                 // on passe au champs suivant.
                 i = i + 1;
                 if (keys.length > i) {
@@ -288,14 +289,14 @@ export default {
        */
       const loopEntityPromise = (datas, i = null, values = [], essaie = 0) => {
         return new Promise((resolv, reject) => {
-          //console.log("loopEntityPromise : ", datas);
+          // console.log("loopEntityPromise : ", datas, "\n", i);
           if (datas[i]) {
             // S'il contient des sous entités.
             if (datas[i].entities && typeof datas[i].entities === "object") {
               const keys = Object.keys(datas[i].entities);
               loopFieldEntity(datas[i].entities, keys[0], datas[i].entity, keys, 0)
                 .then((entity) => {
-                  //console.log(" loopEntityPromise SEND with override entity : ", entity);
+                  // console.log(" loopEntityPromise SEND with override entity : ", entity);
                   const saveEntity = () => {
                     store
                       .dispatch("saveEntity", {
