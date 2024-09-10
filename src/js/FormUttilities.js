@@ -145,12 +145,20 @@ export default {
               loopFieldEntity(items[i].entities, keys[0], items[i].entity, keys, 0)
                 .then((entity) => {
                   const saveEntity = () => {
+                    const payloads = {
+                      entity_type_id: items[i].target_type,
+                      value: updateDomainId(entity),
+                      index: i,
+                      translations: [],
+                    };
+                    console.log(" etapes non ok pour les traductions : ", entity, "\n", items[i]);
+                    // if (item.entity.translations && item.entity.translations.length) {
+                    //   datas[i].entity.translations.forEach((translate_entity) => {
+                    //     payloads.translations.push(updateDomainId(translate_entity));
+                    //   });
+                    // }
                     store
-                      .dispatch("saveEntity", {
-                        entity_type_id: items[i].target_type,
-                        value: updateDomainId(entity),
-                        index: i,
-                      })
+                      .dispatch("saveEntity", payloads)
                       .then((resp) => {
                         suivers.creates++;
                         // console.log(" Before loopItemAddValues 1 : ", values);
@@ -184,12 +192,19 @@ export default {
                 });
             } else {
               const saveEntity = () => {
+                const payloads = {
+                  entity_type_id: item.target_type,
+                  value: updateDomainId(item.entity),
+                  index: i,
+                  translations: [],
+                };
+                if (item.entity.translations && item.entity.translations.length) {
+                  datas[i].entity.translations.forEach((translate_entity) => {
+                    payloads.translations.push(updateDomainId(translate_entity));
+                  });
+                }
                 store
-                  .dispatch("saveEntity", {
-                    entity_type_id: item.target_type,
-                    value: updateDomainId(item.entity),
-                    index: i,
-                  })
+                  .dispatch("saveEntity", payloads)
                   .then((resp) => {
                     suivers.creates++;
                     // console.log(" Before loopItemAddValues 2 : ", values);
@@ -297,12 +312,19 @@ export default {
                 .then((entity) => {
                   // console.log(" loopEntityPromise SEND with override entity : ", entity);
                   const saveEntity = () => {
+                    const payloads = {
+                      entity_type_id: datas[i].target_type,
+                      value: updateDomainId(datas[i].entity),
+                      index: i,
+                      translations: [],
+                    };
+                    if (datas[i].entity.translations && datas[i].entity.translations.length) {
+                      datas[i].entity.translations.forEach((translate_entity) => {
+                        payloads.translations.push(updateDomainId(translate_entity));
+                      });
+                    }
                     store
-                      .dispatch("saveEntity", {
-                        entity_type_id: datas[i].target_type,
-                        value: updateDomainId(entity),
-                        index: i,
-                      })
+                      .dispatch("saveEntity", payloads)
                       .then((resp) => {
                         suivers.creates++;
                         this.lastIdsEntity.push({ target_id: resp.data.id });
@@ -319,12 +341,12 @@ export default {
                          */
                         if (essaie < this.numberTry) {
                           essaie++;
-                          //console.log("loopEntityPromise re-try : ", essaie);
+                          // console.log("loopEntityPromise re-try : ", essaie);
                           setTimeout(() => {
                             saveEntity();
                           }, this.timeWaitBeforeRetry);
                         } else {
-                          //console.log("catch loopEntityPromise : ", er);
+                          // console.log("catch loopEntityPromise : ", er);
                           reject(er);
                         }
                       });
@@ -332,19 +354,27 @@ export default {
                   saveEntity();
                 })
                 .catch((er) => {
-                  //console.log("catch loopEntityPromise : ", er);
+                  // console.log("catch loopEntityPromise : ", er);
                   reject(er);
                 });
             }
             // S'il ne contient pas de sous entité.
             else {
               const saveEntity = () => {
+                const payloads = {
+                  entity_type_id: datas[i].target_type,
+                  value: updateDomainId(datas[i].entity),
+                  index: i,
+                  translations: [],
+                };
+                if (datas[i].entity.translations && datas[i].entity.translations.length) {
+                  datas[i].entity.translations.forEach((translate_entity) => {
+                    payloads.translations.push(updateDomainId(translate_entity));
+                  });
+                }
+                //
                 store
-                  .dispatch("saveEntity", {
-                    entity_type_id: datas[i].target_type,
-                    value: updateDomainId(datas[i].entity),
-                    index: i,
-                  })
+                  .dispatch("saveEntity", payloads)
                   .then((resp) => {
                     suivers.creates++;
                     this.lastIdsEntity.push({ target_id: resp.data.id });
