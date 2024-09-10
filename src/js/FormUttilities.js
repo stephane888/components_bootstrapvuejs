@@ -102,7 +102,7 @@ export default {
   prepareSaveEntities(store, datas, suivers, ActionDomainId = false) {
     return new Promise((resolu, rejecte) => {
       // console.log("prepareSaveEntities");
-      // on vide les derniers ids.
+      // On vide les derniers ids.
       this.lastIdsEntity = [];
       const updateDomainId = (entity) => {
         //console.log("entity.field_domain_source : ", entity, "\n ActionDomainId : ", ActionDomainId, "\n this.domainRegister : ", this.domainRegister);
@@ -153,7 +153,7 @@ export default {
                       })
                       .then((resp) => {
                         suivers.creates++;
-                        //console.log(" Before loopItemAddValues 1 : ", values);
+                        // console.log(" Before loopItemAddValues 1 : ", values);
                         if (!loopItemAddValues(values, resp, has_target_revision_id)) reject(" Revision requis mais non definit ");
                         i = i + 1;
                         if (i < items.length) {
@@ -179,7 +179,7 @@ export default {
                   saveEntity();
                 })
                 .catch((er) => {
-                  //console.log(" catch loopItem : ", er);
+                  // console.log(" catch loopItem : ", er);
                   reject(er);
                 });
             } else {
@@ -192,10 +192,9 @@ export default {
                   })
                   .then((resp) => {
                     suivers.creates++;
-                    //console.log(" Before loopItemAddValues 2 : ", values);
+                    // console.log(" Before loopItemAddValues 2 : ", values);
                     if (!loopItemAddValues(values, resp, has_target_revision_id)) reject(" Revision requis mais non definit ");
                     // values.push({ target_id: resp.data.id });
-
                     i = i + 1;
                     if (items.length <= i) {
                       resolv(loopItem(items, i, values, has_target_revision_id));
