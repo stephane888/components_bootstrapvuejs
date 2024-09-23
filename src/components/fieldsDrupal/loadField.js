@@ -53,6 +53,7 @@ export default {
     switch (key) {
       case "string":
       case "string_textfield":
+      case "text_textfield":
         template = drupalString;
         break;
       case "number":
@@ -160,7 +161,6 @@ export default {
   },
   getImageUrl(fid, style = "medium", param = []) {
     const url = this.config.get("/filesmanager/image/" + fid + "/" + style);
-    console.log("image url: ", url);
     return url;
   },
   getVideoThumbUrl(fid, style = "medium") {

@@ -6,8 +6,8 @@ On ajoute type-field-render et type-field-drupal car on a bc de mal a ce retrouv
     <div class="field-item-value">
       <ValidationProvider v-slot="v" :name="fullname" :rules="getRules()">
         <!-- cas de selection unique on/off -->
-        <b-form-group v-if="field.type == 'boolean_checkbox'" :label="field.label" :description="field.description" :class="(size ? 'size-' + size : '', 'form-check')">
-          <b-form-checkbox v-model="selected" :name="fullname" :size="size" @change="input">
+        <b-form-group v-if="field.type == 'boolean_checkbox'" :label="field.label" :description="field.description" :class="[size ? 'size-' + size : '']">
+          <b-form-checkbox v-model="selected" :name="fullname" :size="size" @change="input" class="form-check-input-custom ms-0 ps-0">
             {{ field.label }}
           </b-form-checkbox>
         </b-form-group>
@@ -61,7 +61,6 @@ On ajoute type-field-render et type-field-drupal car on a bc de mal a ce retrouv
         </b-form-group>
       </ValidationProvider>
     </div>
-    <pre> field : {{ field }} </pre>
   </div>
 </template>
 

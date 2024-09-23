@@ -1,6 +1,5 @@
 <template>
   <ValidationProvider v-slot="v" :name="fullname" :rules="getRules()">
-    <div class="d-none for-test">MultiSelectEntities : {{ field.type }}</div>
     <b-form-group :label="field.label" :description="field.description">
       <div class="autocomplete">
         <multiselect
@@ -20,17 +19,13 @@
           @tag="createElement"
         >
           <template slot="noResult">
-            <span class="option__title">
-              Aucun contenu ne correspond à votre recherche
-            </span>
+            <span class="option__title"> Aucun contenu ne correspond à votre recherche </span>
           </template>
           <template slot="placeholder">
             <span class="option__title"> Aucun contenu ... </span>
           </template>
           <template slot="noOptions">
-            <span class="option__title">
-              Saisir un ou plusieurs caractères ...
-            </span>
+            <span class="option__title"> Saisir un ou plusieurs caractères ... </span>
           </template>
         </multiselect>
         <div class="text-danger">
@@ -134,9 +129,7 @@ export default {
     getTermById(tid) {
       let entity_type_id = this.getFistVocab();
       if (entity_type_id && loadField.config) {
-        const bundle = this.field.definition_settings.bundle_entity_type_id
-          ? this.field.definition_settings.bundle_entity_type_id
-          : entity_type_id;
+        const bundle = this.field.definition_settings.bundle_entity_type_id ? this.field.definition_settings.bundle_entity_type_id : entity_type_id;
 
         const terms = new itemsEntity(entity_type_id, bundle, loadField.config);
 
@@ -176,12 +169,8 @@ export default {
      */
     getFistVocab() {
       if (this.field.definition_settings.handler_settings.target_bundles) {
-        const keys = Object.keys(
-          this.field.definition_settings.handler_settings.target_bundles
-        );
-        return this.field.definition_settings.handler_settings.target_bundles[
-          keys[0]
-        ];
+        const keys = Object.keys(this.field.definition_settings.handler_settings.target_bundles);
+        return this.field.definition_settings.handler_settings.target_bundles[keys[0]];
       } else if (this.field.definition_settings.target_type) {
         return this.field.definition_settings.target_type;
       } else return null;
@@ -194,14 +183,8 @@ export default {
       if (search.length >= 2 || init) {
         let entity_type_id = this.getFistVocab();
         if (entity_type_id && loadField.config) {
-          const bundle = this.field.definition_settings.bundle_entity_type_id
-            ? this.field.definition_settings.bundle_entity_type_id
-            : entity_type_id;
-          const terms = new itemsEntity(
-            entity_type_id,
-            bundle,
-            loadField.config
-          );
+          const bundle = this.field.definition_settings.bundle_entity_type_id ? this.field.definition_settings.bundle_entity_type_id : entity_type_id;
+          const terms = new itemsEntity(entity_type_id, bundle, loadField.config);
           if (this.overrideConfig) {
             terms.remplaceConfig();
           }
@@ -229,9 +212,7 @@ export default {
         entity_type_id: this.field.definition_settings.target_type,
       };
 
-      const action = this.namespaceStore
-        ? this.namespaceStore + "/saveEntity"
-        : "saveEntity";
+      const action = this.namespaceStore ? this.namespaceStore + "/saveEntity" : "saveEntity";
 
       this.$store
         .dispatch(action, entity)

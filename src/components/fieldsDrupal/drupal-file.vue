@@ -222,7 +222,6 @@ export default {
       if (this.model[this.field.name] && this.model[this.field.name].length) {
         this.toUplode = [];
         this.model[this.field.name].forEach((item) => {
-          console.log("item image:", item);
           if (request.config) {
             const toUplode = {
               url: "",

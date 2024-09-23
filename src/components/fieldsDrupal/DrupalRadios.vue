@@ -2,18 +2,11 @@
 On ajoute type-field-render et type-field-drupal car on a bc de mal a ce retrouver sur le rendu html.
 -->
 <template>
-  <div
-    :class="classCss"
-    type-field-render="DrupalRadios"
-    :type-field-drupal="field.type"
-  >
+  <div :class="classCss" type-field-render="DrupalRadios" :type-field-drupal="field.type">
     <div class="field-item-value js-form-type-radio" :format_val="format_val">
       <!-- On a different cas de figure-->
       <OptionsTaxonomy
-        v-if="
-          field.definition_settings.target_type &&
-          field.definition_settings.target_type == 'taxonomy_term'
-        "
+        v-if="field.definition_settings.target_type && field.definition_settings.target_type == 'taxonomy_term'"
         :field="field"
         :model="model"
         :namespace-store="namespaceStore"
@@ -22,10 +15,7 @@ On ajoute type-field-render et type-field-drupal car on a bc de mal a ce retrouv
       >
       </OptionsTaxonomy>
       <OptionsAllowedValues
-        v-else-if="
-          field.definition_settings.allowed_values &&
-          Object.keys(field.definition_settings.allowed_values).length > 0
-        "
+        v-else-if="field.definition_settings.allowed_values && Object.keys(field.definition_settings.allowed_values).length > 0"
         :field="field"
         :model="model"
         :namespace-store="namespaceStore"
@@ -33,10 +23,7 @@ On ajoute type-field-render et type-field-drupal car on a bc de mal a ce retrouv
         @setValue="setValue"
       ></OptionsAllowedValues>
       <OptionsEntities
-        v-else-if="
-          field.definition_settings.target_type &&
-          field.definition_settings.target_type != ''
-        "
+        v-else-if="field.definition_settings.target_type && field.definition_settings.target_type != ''"
         :field="field"
         :model="model"
         :namespace-store="namespaceStore"
@@ -44,22 +31,10 @@ On ajoute type-field-render et type-field-drupal car on a bc de mal a ce retrouv
       >
       </OptionsEntities>
 
-      <ValidationProvider
-        v-else
-        v-slot="v"
-        :name="fullname"
-        :rules="getRules()"
-      >
-        <b-form-group
-          :label="field.label"
-          :name="fullname"
-          :class="size ? 'size-' + size : ''"
-        >
+      <ValidationProvider v-else v-slot="v" :name="fullname" :rules="getRules()">
+        <b-form-group :label="field.label" :name="fullname" :class="size ? 'size-' + size : ''">
           <div class="fieldset-wrapper">
-            <div
-              v-if="field.settings && field.settings.list_options"
-              class="radio"
-            >
+            <div v-if="field.settings && field.settings.list_options" class="radio">
               <b-form-radio
                 v-for="(option, o) in field.settings.list_options"
                 :key="o"
@@ -72,24 +47,12 @@ On ajoute type-field-render et type-field-drupal car on a bc de mal a ce retrouv
               >
                 <transition name="fade" mode="out-in">
                   <div>
-                    <b-img
-                      v-if="option.image_url"
-                      thumbnail
-                      fluid
-                      :src="option.image_url"
-                      alt="Image 1"
-                    ></b-img>
+                    <b-img v-if="option.image_url" thumbnail fluid :src="option.image_url" alt="Image 1"></b-img>
                     <svgLoader v-if="!option.image_url"></svgLoader>
                   </div>
                 </transition>
                 <div class="mt-5">{{ option.label }}</div>
-                <div
-                  v-if="
-                    option.description.value && option.description.value !== ''
-                  "
-                  class="mt-5 text-hover"
-                  v-html="option.description.value"
-                ></div>
+                <div v-if="option.description.value && option.description.value !== ''" class="mt-5 text-hover" v-html="option.description.value"></div>
               </b-form-radio>
             </div>
             <div class="text-danger my-2" v-if="v.errors">
@@ -175,7 +138,6 @@ export default {
   },
   mounted() {
     this.getImage();
-    console.log("load image boolean");
   },
 
   methods: {

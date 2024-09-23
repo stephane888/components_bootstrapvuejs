@@ -1,11 +1,6 @@
 <template>
   <div>
-    <div class="d-none for-test">options value : {{ field.type }}</div>
-    <ValidationProvider
-      v-slot="validation"
-      :name="fullname"
-      :rules="getRules()"
-    >
+    <ValidationProvider v-slot="validation" :name="fullname" :rules="getRules()">
       <b-form-group :label="field.label">
         <b-form-select
           v-if="field.type == 'options_select'"
@@ -73,12 +68,8 @@ export default {
   methods: {
     getFistVocab() {
       if (this.field.definition_settings.handler_settings.target_bundles) {
-        const keys = Object.keys(
-          this.field.definition_settings.handler_settings.target_bundles
-        );
-        return this.field.definition_settings.handler_settings.target_bundles[
-          keys[0]
-        ];
+        const keys = Object.keys(this.field.definition_settings.handler_settings.target_bundles);
+        return this.field.definition_settings.handler_settings.target_bundles[keys[0]];
       } else return null;
     },
     input(val) {
@@ -92,17 +83,14 @@ export default {
      */
     getValue() {
       if (this.model[this.field.name] && this.model[this.field.name][0]) {
-        if (this.is_target_type)
-          return this.model[this.field.name][0].target_id;
+        if (this.is_target_type) return this.model[this.field.name][0].target_id;
         else return this.model[this.field.name][0].value;
       }
       return null;
     },
     getValidationState(validation) {
       var valid = true;
-      return (validation.dirty || validation.validated) && !valid
-        ? valid
-        : null;
+      return (validation.dirty || validation.validated) && !valid ? valid : null;
     },
     getRules() {
       return config.getRules(this.field);

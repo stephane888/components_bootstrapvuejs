@@ -1,11 +1,7 @@
 <template>
   <div :class="classCss">
     <ValidationProvider v-slot="v" :name="fullname" :rules="getRules()">
-      <b-form-group
-        :label="field.label"
-        :description="field.description"
-        :class="size ? 'size-' + size : ''"
-      >
+      <b-form-group :label="field.label" :description="field.description" :class="size ? 'size-' + size : ''">
         <div class="field-item-value">
           <b-form-input
             v-model="input_value"
