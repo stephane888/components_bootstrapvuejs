@@ -149,14 +149,20 @@ export default {
                       entity_type_id: items[i].target_type,
                       value: updateDomainId(entity),
                       index: i,
-                      translations: [],
+                      translations: {},
                     };
-                    console.log(" etapes non ok pour les traductions : ", entity, "\n", items[i]);
-                    // if (item.entity.translations && item.entity.translations.length) {
-                    //   datas[i].entity.translations.forEach((translate_entity) => {
-                    //     payloads.translations.push(updateDomainId(translate_entity));
-                    //   });
-                    // }
+                    if (items[i].translations) {
+                      for (const k in items[i].translations) {
+                        const translate_entity = items[i].translations[k];
+                        keys.forEach((key_fieldName) => {
+                          if (translate_entity[key_fieldName]) {
+                            translate_entity[key_fieldName] = entity[key_fieldName];
+                          }
+                        });
+                        payloads.translations[k] = updateDomainId(translate_entity);
+                      }
+                    }
+
                     store
                       .dispatch("saveEntity", payloads)
                       .then((resp) => {
@@ -196,12 +202,13 @@ export default {
                   entity_type_id: item.target_type,
                   value: updateDomainId(item.entity),
                   index: i,
-                  translations: [],
+                  translations: {},
                 };
-                if (item.entity.translations && item.entity.translations.length) {
-                  datas[i].entity.translations.forEach((translate_entity) => {
-                    payloads.translations.push(updateDomainId(translate_entity));
-                  });
+                if (item.translations) {
+                  for (const k in item.translations) {
+                    const translate_entity = item.translations[k];
+                    payloads.translations[k] = updateDomainId(translate_entity);
+                  }
                 }
                 store
                   .dispatch("saveEntity", payloads)
@@ -314,14 +321,20 @@ export default {
                   const saveEntity = () => {
                     const payloads = {
                       entity_type_id: datas[i].target_type,
-                      value: updateDomainId(datas[i].entity),
+                      value: updateDomainId(entity),
                       index: i,
-                      translations: [],
+                      translations: {},
                     };
-                    if (datas[i].entity.translations && datas[i].entity.translations.length) {
-                      datas[i].entity.translations.forEach((translate_entity) => {
-                        payloads.translations.push(updateDomainId(translate_entity));
-                      });
+                    if (datas[i].translations) {
+                      for (const k in datas[i].translations) {
+                        const translate_entity = datas[i].translations[k];
+                        keys.forEach((key_fieldName) => {
+                          if (translate_entity[key_fieldName]) {
+                            translate_entity[key_fieldName] = entity[key_fieldName];
+                          }
+                        });
+                        payloads.translations[k] = updateDomainId(translate_entity);
+                      }
                     }
                     store
                       .dispatch("saveEntity", payloads)
@@ -365,12 +378,13 @@ export default {
                   entity_type_id: datas[i].target_type,
                   value: updateDomainId(datas[i].entity),
                   index: i,
-                  translations: [],
+                  translations: {},
                 };
-                if (datas[i].entity.translations && datas[i].entity.translations.length) {
-                  datas[i].entity.translations.forEach((translate_entity) => {
-                    payloads.translations.push(updateDomainId(translate_entity));
-                  });
+                if (datas[i].translations) {
+                  for (const k in datas[i].translations) {
+                    const translate_entity = datas[i].translations[k];
+                    payloads.translations[k] = updateDomainId(translate_entity);
+                  }
                 }
                 //
                 store
