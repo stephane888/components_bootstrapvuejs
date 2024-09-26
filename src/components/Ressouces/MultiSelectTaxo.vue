@@ -67,7 +67,7 @@ export default {
     return {
       isLoading: false,
       options: [],
-      value_select: null,
+      value_select: [],
     };
   },
   computed: {
@@ -134,12 +134,19 @@ export default {
         .getValueByTid(tid)
         .then(() => {
           const options = terms.getOptions();
+<<<<<<< HEAD
           if (options) {
             this.options.push(options[0]);
             if (this.isMultiple) {
               this.value_select.push(options[0]);
             } else if (options[0]) this.value_select = options[0];
           }
+=======
+          this.options = options;
+          if (this.cardinality) {
+            this.value_select.push(options[0]);
+          } else if (options[0]) this.value_select = options[0];
+>>>>>>> 0550960 (fix bug on pencil(taxonomy select2))
           this.isLoading = false;
         })
         .catch(() => {
@@ -157,6 +164,7 @@ export default {
       this.options = [];
       // Load terms names.
       this.model[this.field.name].forEach((item) => {
+        console.log("checking: ", [item.target_id, this.field.name]);
         this.getTermByTid(item.target_id);
       });
     },
@@ -226,6 +234,7 @@ export default {
      * @param {*} vals
      */
     setValue(vals) {
+      console.log("updating=>", this.fullname);
       if (this.namespaceStore) {
         this.$store.dispatch(this.namespaceStore + "/setValue", {
           value: vals,
