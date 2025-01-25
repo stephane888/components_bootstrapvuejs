@@ -101,6 +101,7 @@ export default {
       case "image_image":
       case "video_upload":
       case "hbk_file_generic":
+      case "more_fields_upload_videos":
         template = drupalFile;
         break;
       case "experience_type":
