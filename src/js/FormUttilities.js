@@ -113,12 +113,11 @@ export default {
         return entity;
       };
       const loopItemAddValues = (values, resp, has_target_revision_id) => {
-        // console.log("loopItemAddValues values : ", values, "\n resp : ", resp, "\n has_target_revision_id : ", has_target_revision_id);
         if (has_target_revision_id) {
-          // try to get revision.
+          // Try to get revision.
           var revision_id;
-          if (resp.data.json.revision_id && resp.data.json.revision_id[0] && resp.data.json.revision_id[0].value) {
-            revision_id = resp.data.json.revision_id[0].value;
+          if (resp.data.revision_id) {
+            revision_id = resp.data.revision_id;
           } else {
             return false;
           }
@@ -167,8 +166,8 @@ export default {
                       .dispatch("saveEntity", payloads)
                       .then((resp) => {
                         suivers.creates++;
-                        // console.log(" Before loopItemAddValues 1 : ", values);
-                        if (!loopItemAddValues(values, resp, has_target_revision_id)) reject(" Revision requis mais non definit ");
+                        // console.log(" Before loopItemAddValues 1 : ", resp, "\n", payloads);
+                        if (!loopItemAddValues(values, resp, has_target_revision_id)) reject(" Revision requis mais non definit :1  ");
                         i = i + 1;
                         if (i < items.length) {
                           resolv(loopItem(items, i, values, has_target_revision_id));
@@ -215,7 +214,7 @@ export default {
                   .then((resp) => {
                     suivers.creates++;
                     // console.log(" Before loopItemAddValues 2 : ", values);
-                    if (!loopItemAddValues(values, resp, has_target_revision_id)) reject(" Revision requis mais non definit ");
+                    if (!loopItemAddValues(values, resp, has_target_revision_id)) reject(" Revision requis mais non definit :2 ");
                     // values.push({ target_id: resp.data.id });
                     i = i + 1;
                     if (items.length <= i) {
@@ -258,22 +257,28 @@ export default {
        */
       const loopFieldEntity = (datas, fieldname, entity, keys, i) => {
         return new Promise((resolv, reject) => {
-          //console.log(" loopFieldEntity : ", datas, "\n fieldname : ", fieldname);
+          // Console.log(" loopFieldEntity : ", datas, "\n fieldname : ", fieldname);
           // Si le champs contient des données,
           // on parcourt chacune des entrées.
           if (datas[fieldname] && datas[fieldname].length > 0) {
             var has_target_revision_id = false;
-            //console.log("entity[fieldname][0] : ", entity[fieldname][0], "\n : ", entity);
+            // console.log("entity[fieldname][0] : ", entity[fieldname][0], "\n : ", entity);
             // on verifie s'il ya des entrées supplementaire
             // fieldname n'existe pas forcement, ( par exmple le cas de menu ).
             if (entity[fieldname] && entity[fieldname][0]) {
               const keys = Object.keys(entity[fieldname][0]);
+              // console.log("has target_revision_id : ", fieldname, entity, keys);
               if (keys.includes("target_revision_id")) {
                 has_target_revision_id = true;
               }
-              // s'il ya plus de entrées , on emet une erreur de peur de perdre les données.
+              /**
+               * S'il ya plus de entrées , on emet une erreur de peur de perdre les données.
+               */
+
               if (keys.length > 2) {
-                reject("On a plus de donnée que pruvu dans l'objet à enregistrer");
+                // On doit ignore les champs webforms creer avec les valeurs par defaut.
+                const hasRequiredKeysWebform = keys.includes("default_data") && keys.includes("open");
+                if (!hasRequiredKeysWebform) reject("On a plus de données que prévu dans l'objet à enregistrer");
               }
             }
             // Pour chaque champs, on cree les contenus et on recupere les ids.

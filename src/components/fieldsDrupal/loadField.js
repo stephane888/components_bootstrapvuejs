@@ -49,7 +49,7 @@ export default {
     var key = field.type;
     if (key == "list_string" && field.cardinality == 1) key = "boolean";
     var template;
-    if (this.debug) console.log(" key : ", key);
+    if (this.debug) console.log(" key : ", key, "\n this : ", this);
     switch (key) {
       case "string":
       case "string_textfield":
@@ -77,6 +77,7 @@ export default {
         break;
       case "boolean":
       case "options_select":
+      case "language_select":
         template = drupalRadios;
         break;
       case "options_buttons":
@@ -102,6 +103,7 @@ export default {
       case "video_upload":
       case "hbk_file_generic":
       case "more_fields_upload_videos":
+      case "file_generic":
         template = drupalFile;
         break;
       case "experience_type":
@@ -155,7 +157,7 @@ export default {
         template = PhoneInternational;
         break;
       default:
-        console.log(" Champs sans rendu : ", key, "\n field : ", field);
+        console.log("Champs sans rendu : ", key, "\nField : ", field);
         break;
     }
     return template;

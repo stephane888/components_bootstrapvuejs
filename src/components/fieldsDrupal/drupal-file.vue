@@ -17,9 +17,11 @@
       </b-form-group>
     </ValidationProvider>
     <div class="previews">
-      <div v-for="(fil, i) in toUplode" :key="i" class="item d-flex" :class="alt_field_is_define ? 'w-alt' : ''">
-        <b-img :src="fil.url" fluid alt="Fluid image" thumbnail class="img-preview"></b-img>
+      <div v-for="(fil, i) in toUplode" :key="i" class="item d-flex" :class="alt_field_is_define || descriptionfile_field_is_define ? 'w-alt' : ''">
+        <b-img v-if="has_preview_image" :src="fil.url" fluid alt="Fluid image" thumbnail class="img-preview"></b-img>
+        <svgFileIcon v-else class="img-preview"></svgFileIcon>
         <b-icon v-b-tooltip.v-danger="' Supprimer le fichier '" icon="x" font-scale="2" variant="danger" class="icon-delete" @click="delete_file(i, fil)"></b-icon>
+        <!-- pour le alt des images -->
         <ValidationProvider v-if="alt_field_is_define" v-slot="v" :rules="getAltRules()" :name="field.name + '_alt_' + i" class="align-self-center flex-grow-1">
           <b-form-input
             v-model="alts[i]"
@@ -28,6 +30,23 @@
             placeholder="Alt"
             :name="field.name + '_alt_' + i"
             @input="updateValue('alt', i, alts[i])"
+          ></b-form-input>
+        </ValidationProvider>
+        <!-- Description des fichiers -->
+        <ValidationProvider
+          v-if="descriptionfile_field_is_define"
+          v-slot="v"
+          :rules="getAltRules()"
+          :name="field.name + '_descriptionfile_' + i"
+          class="align-self-center flex-grow-1"
+        >
+          <b-form-input
+            v-model="descriptionfile[i]"
+            :state="getValidationState(v)"
+            class="align-self-center"
+            placeholder="Description file"
+            :name="field.name + '_alt_' + i"
+            @input="updateValue('description', i, descriptionfile[i])"
           ></b-form-input>
         </ValidationProvider>
       </div>
@@ -40,11 +59,13 @@ import "../../assets/scss/upload.scss";
 import request from "./loadField";
 import { ValidationProvider } from "vee-validate";
 import "./vee-validation-rules";
+import svgFileIcon from "./svg-file-icon.vue";
 
 export default {
   name: "DrupalFile",
   components: {
     ValidationProvider,
+    svgFileIcon,
   },
   props: {
     classCss: {
@@ -69,6 +90,7 @@ export default {
       // Fichiers uploaded.
       toUplode: [],
       alts: [],
+      descriptionfile: [],
     };
   },
   computed: {
@@ -100,6 +122,23 @@ export default {
       }
       return false;
     },
+    descriptionfile_field_is_define() {
+      if (this.field.definition_settings) {
+        return this.field.definition_settings.description_field;
+      }
+      return false;
+    },
+    has_preview_image() {
+      let status = false;
+      switch (this.field.type) {
+        case "image":
+        case "image_image":
+        case "more_fields_upload_videos":
+          status = true;
+          break;
+      }
+      return status;
+    },
   },
   watch: {
     /**
@@ -111,12 +150,19 @@ export default {
       this.alts = newModel[this.field.name].map((element) => {
         return element.alt ? element.alt : "";
       });
+      this.descriptionfile = newModel[this.field.name].map((element) => {
+        return element.description ? element.description : "";
+      });
     },
   },
   mounted() {
     this.getValue();
     this.alts = this.model[this.field.name].map((element) => {
       return element.alt ? element.alt : "";
+    });
+    this.descriptionfile = this.model[this.field.name].map((element) => {
+      console.log("Mounted element : ", element);
+      return element.description ? element.description : "";
     });
   },
   methods: {
@@ -244,7 +290,7 @@ export default {
       }
     },
     updateValue(property, index, value) {
-      const storeAction = this.namespaceStore ? this.namespaceStore + "/getValue" : "getValue";
+      // const storeAction = this.namespaceStore ? this.namespaceStore + "/getValue" : "getValue";
       const vals = this.model[this.field.name];
       vals[index][property] = value;
       this.setValue(vals);

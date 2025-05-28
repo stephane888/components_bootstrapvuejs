@@ -20,18 +20,14 @@
             :entities="render.entities"
             :class-css="['mb-5']"
             :parent-name="parentChildName + field.name + '.' + i + '.entity.'"
-            :parent-child-name="
-              parentChildName + field.name + '.' + i + '.entities.'
-            "
+            :parent-child-name="parentChildName + field.name + '.' + i + '.entities.'"
             namespace-store=""
             @addNewValue="addNewValue($event, render)"
             @removeField="removeField($event, render)"
             @array_move="array_move($event, render)"
           ></component>
         </component>
-        <small v-if="fields.length == 0" class="text-muted py-2">
-          Aucune section
-        </small>
+        <small v-if="fields.length == 0" class="text-muted py-2"> Aucune section </small>
       </div>
     </b-form-group>
   </div>
@@ -75,12 +71,9 @@ export default {
       var fields = [];
       this.$store.commit("RUN_BUILDING_FIELDS");
       if (this.entities && this.entities.length) {
-        generateField
-          .generateFields(this.entities, fields, "accordion_card")
-          .then((resp) => {
-            console.log(" sub fields : ", resp);
-            this.fields = resp;
-          });
+        generateField.generateFields(this.entities, fields, "accordion_card").then((resp) => {
+          this.fields = resp;
+        });
       }
     },
   },
