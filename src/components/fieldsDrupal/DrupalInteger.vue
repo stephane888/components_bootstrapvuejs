@@ -1,11 +1,8 @@
 <template>
   <div :class="classCss">
     <ValidationProvider v-slot="v" :name="fullname" :rules="getRules()">
-      <b-form-group
-        :label="field.label"
-        :description="field.description"
-        :class="size ? 'size-' + size : ''"
-      >
+      <b-form-group :label="field.label" :description="field.description" :class="size ? 'size-' + size : ''">
+        <!--voir drupalLink pour faire le multifield -->
         <div class="field-item-value">
           <b-form-input
             v-model="input_value"
@@ -74,10 +71,8 @@ export default {
     settings() {
       var settings = { min: "", max: "" };
       if (this.field.definition_settings) {
-        if (this.field.definition_settings.min)
-          settings.min = this.field.definition_settings.min;
-        if (this.field.definition_settings.max)
-          settings.max = this.field.definition_settings.max;
+        if (this.field.definition_settings.min) settings.min = this.field.definition_settings.min;
+        if (this.field.definition_settings.max) settings.max = this.field.definition_settings.max;
       }
       return settings;
     },

@@ -2,6 +2,7 @@
   <div :class="classCss">
     <ValidationProvider v-slot="v" :name="fullname" :rules="getRules()">
       <b-form-group :label="field.label" :description="field.description">
+        <!--voir drupalLink pour faire le multifield -->
         <div class="field-item-value">
           <b-form-textarea
             v-model="input_value"

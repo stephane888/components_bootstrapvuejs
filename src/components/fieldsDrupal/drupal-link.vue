@@ -2,21 +2,12 @@
   <div :class="classCss">
     <ValidationProvider v-slot="v" :name="fullname" :rules="getRules()">
       <b-form-group :label="field.label" :description="field.description">
-        <div class="field-item-value">
-          <b-form-input
-            v-model="input_value.title"
-            :placeholder="field.placeholder"
-            :state="getValidationState(v)"
-            :name="fullname + 'title'"
-            @input="input"
-          ></b-form-input>
-          <b-form-input
-            v-model="input_value.uri"
-            :placeholder="field.placeholder"
-            :state="getValidationState(v)"
-            :name="fullname + 'url'"
-            @input="input"
-          ></b-form-input>
+        <div v-for="(input_value, ij) in input_values" :key="ij" class="field-item-value" :class="[input_values.length > 1 ? 'mb-4' : '']">
+          <b-form-input v-model="input_value.title" :placeholder="field.placeholder" :state="getValidationState(v)" :name="fullname + 'title' + ij" @input="input()"></b-form-input>
+          <b-form-input v-model="input_value.uri" :placeholder="field.placeholder" :state="getValidationState(v)" :name="fullname + 'url' + ij" @input="input()"></b-form-input>
+        </div>
+        <div v-if="cardinality">
+          <b-button size="sm" @click="addMore">Add more</b-button>
         </div>
         <div v-if="v.errors" class="text-danger my-2">
           <small v-for="(error, ii) in v.errors" :key="ii" class="d-block">
@@ -55,7 +46,7 @@ export default {
 
   data() {
     return {
-      input_value: { title: "", uri: "#" },
+      input_values: [{ title: "", uri: "#" }],
       timer: null,
     };
   },
@@ -63,9 +54,16 @@ export default {
     fullname() {
       return this.parentName + this.field.name;
     },
+    cardinality() {
+      if (this.field.cardinality === -1) {
+        return true;
+      } else {
+        return false;
+      }
+    },
   },
   mounted() {
-    this.input_value = this.getValue();
+    this.input_values = this.getValue();
   },
   methods: {
     getValidationState({ dirty, validated, valid = null }) {
@@ -88,36 +86,49 @@ export default {
     },
     getValue() {
       if (this.model[this.field.name] && this.model[this.field.name][0]) {
-        var url = this.model[this.field.name][0];
-        if (url.uri) {
-          return {
-            uri: url.uri.replace("internal:", ""),
-            title: url.title,
-            attributes: url.attributes,
-            options: url.options,
-          };
-        }
-        return url;
+        const values = [];
+        this.model[this.field.name].forEach((value) => {
+          if (value.uri) {
+            values.push({
+              uri: value.uri.replace("internal:", ""),
+              title: value.title,
+              attributes: value.attributes,
+              options: value.options,
+            });
+          }
+        });
+        return values;
       } else return { title: "", uri: "#" };
     },
     input() {
       const vals = [];
       clearTimeout(this.timer);
       this.timer = setTimeout(() => {
-        var r = new RegExp("^(?:[a-z+]+:)?//", "i");
-        var uri = "internal:" + this.input_value.uri;
-        if (r.test(this.input_value.uri)) {
-          uri = this.input_value.uri;
+        // On met à jour toutes les valeurs.
+        for (const index in this.input_values) {
+          var r = new RegExp("^(?:[a-z+]+:)?//", "i");
+          var uri = "internal:" + this.input_values[index].uri;
+          if (r.test(this.input_values[index].uri)) {
+            uri = this.input_values[index].uri;
+          }
+          const value = {
+            ...this.model[this.field.name][index],
+            uri: uri,
+            title: this.input_values[index].title,
+            // attributes: [],
+            // options: [],
+          };
+          vals.push(value);
         }
-        const value = {
-          uri: uri,
-          title: this.input_value.title,
-          attributes: [],
-          options: [],
-        };
-        vals.push(value);
         this.setValue(vals);
       }, config.timeToWait);
+    },
+    addMore() {
+      if (this.input_values.length > 0) this.input_values.push({ title: "", uri: "#", attributes: [], options: [] });
+      else {
+        this.input_values = [];
+        this.input_values.push({ title: "", uri: "#", attributes: [], options: [] });
+      }
     },
   },
 };

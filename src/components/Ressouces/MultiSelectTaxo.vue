@@ -19,17 +19,13 @@
           @tag="createElement"
         >
           <template slot="noResult">
-            <span class="option__title">
-              Aucun contenu ne correspond à votre recherche
-            </span>
+            <span class="option__title"> Aucun contenu ne correspond à votre recherche </span>
           </template>
           <template slot="placeholder">
             <span class="option__title"> Aucun contenu ... </span>
           </template>
           <template slot="noOptions">
-            <span class="option__title">
-              Saisir un ou plusieurs caractères ...
-            </span>
+            <span class="option__title"> Saisir un ou plusieurs caractères ... </span>
           </template>
         </multiselect>
         <div class="text-danger">
@@ -39,6 +35,7 @@
         </div>
       </div>
     </b-form-group>
+    <pre> taxo field : {{ field }} </pre>
   </ValidationProvider>
 </template>
 
@@ -155,12 +152,8 @@ export default {
      */
     getFistVocab() {
       if (this.field.definition_settings.handler_settings.target_bundles) {
-        const keys = Object.keys(
-          this.field.definition_settings.handler_settings.target_bundles
-        );
-        return this.field.definition_settings.handler_settings.target_bundles[
-          keys[0]
-        ];
+        const keys = Object.keys(this.field.definition_settings.handler_settings.target_bundles);
+        return this.field.definition_settings.handler_settings.target_bundles[keys[0]];
       } else if (this.field.definition_settings.target_type) {
         return this.field.definition_settings.target_type;
       } else return null;
@@ -178,9 +171,7 @@ export default {
         entity_type_id: this.field.definition_settings.target_type,
       };
 
-      const action = this.namespaceStore
-        ? this.namespaceStore + "/saveEntity"
-        : "saveEntity";
+      const action = this.namespaceStore ? this.namespaceStore + "/saveEntity" : "saveEntity";
 
       this.$store
         .dispatch(action, entity)
