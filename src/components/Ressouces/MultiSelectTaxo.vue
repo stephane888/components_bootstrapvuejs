@@ -35,7 +35,6 @@
         </div>
       </div>
     </b-form-group>
-    <pre> taxo field : {{ field }} </pre>
   </ValidationProvider>
 </template>
 
@@ -131,7 +130,7 @@ export default {
           const options = terms.getOptions();
           this.options = options;
           if (this.cardinality) {
-            this.value_select = options;
+            this.value_select.push(options[0]);
           } else if (options[0]) this.value_select = options[0];
           this.isLoading = false;
         })
@@ -143,6 +142,7 @@ export default {
      *
      */
     loadDefaults() {
+      this.value_select = [];
       this.model[this.field.name].forEach((item) => {
         this.getTermByTid(item.target_id);
       });
